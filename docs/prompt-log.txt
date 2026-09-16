@@ -8,7 +8,7 @@ build this project, all sessions, in chronological order.
   AI blocks    (dashed border)  the replies; "  > Tool: ..." lines are actions
                                 the AI took (reading files, running commands, edits)
 
-Last generated: 2026-09-16 13:09
+Last generated: 2026-09-16 13:11
 
 
 ================================================================================
@@ -300,5 +300,54 @@ Preflight checks passed. Next I'll look at the untracked files so I know what I'
 
   > Bash: List untracked files and initial commit contents
   > Skill: prompt-log
+  > Bash: Regenerate the prompt log from session transcripts
+
+The prompt log now includes this session. Next: create the branch, commit, and push.
+
+  > Bash: Create branch, commit files by path, and push
+
+Pushed. Now I'll read the branch diff to write the summary.
+
+  > Bash: Review branch commits, diff and existing PR
+
+No PR exists for this branch yet (the exit code 1 came from `gh pr view`), so I'll create one.
+
+  > Bash: Open the pull request against main
+
+\eCanary: Checked!\e
+
+I created a new branch and opened a PR using two skills: `/create-pr` for the branch and PR, and `/prompt-log` to bring the prompt log up to date first.
+
+**PR:** https://github.com/zhivou/VNDNT/pull/1
+**Branch:** `d/project-guidelines-and-skills` (it follows the `{first_initial}/branch-name` rule)
+
+One commit adds all 8 files that weren't yet tracked. Each file was added by name, and none are secrets or generated output.
+
+**Summary in the PR:**
+
+> This PR sets up the repo before any test code: guidance for AI assistants, the testing rules tests must follow, and two project skills.
+>
+> - `CLAUDE.md`: what the project covers (SauceDemo UI, JSONPlaceholder API, Playwright + TypeScript), branch naming, working agreements
+> - `docs/guidelines/`: general, UI and API testing practices
+> - `.claude/skills/create-pr`: opens PRs, checks the branch name and writes a short summary
+> - `.claude/skills/prompt-log`: rebuilds `docs/prompt-log.txt` from session transcripts
+> - `docs/prompt-log.txt`: the prompts so far, which the exercise requires you to submit
+>
+> **Testing:** ran the prompt-log script, which wrote `docs/prompt-log.txt` (3 sessions). There's no test suite yet.
+
+The committed prompt log stops partway through this session, so these last steps and this reply aren't in it. To include them, run `/prompt-log` again and push the update to this branch.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 13:11 |
++------------------------------------------------------------------------------+
+
+/prompt-log
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 13:11
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   > Bash: Regenerate the prompt log from session transcripts
 

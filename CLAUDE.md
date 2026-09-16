@@ -10,6 +10,13 @@ A test automation framework built with AI-assisted development for a Senior QA E
 - **API tests:** JSONPlaceholder, https://jsonplaceholder.typicode.com/
 - **Stack:** Playwright Test (`@playwright/test`) with TypeScript for both UI and API tests
 
+## Prompt log (required)
+
+The exercise requires submitting every prompt, so `docs/prompt-log.txt` must stay complete.
+
+- Run `/prompt-log` in **every session**. It regenerates `docs/prompt-log.txt` from the session transcripts.
+- Run it again at the end of the session and before opening or updating a PR. The log never includes the reply being written during a run, so it's always a few messages behind.
+
 ## Good practices
 
 Read the relevant guide before writing, changing or reviewing tests:
@@ -32,4 +39,3 @@ Read the relevant guide before writing, changing or reviewing tests:
 ## Working agreements
 
 - Do only what was asked. No commits, pushes, scaffolding or other changes nobody requested.
-- The exercise requires submitting every prompt. `/prompt-log` regenerates `docs/prompt-log.txt` from the session transcripts.

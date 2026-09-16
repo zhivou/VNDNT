@@ -121,7 +121,7 @@ The login page (`/`) accepts one of six fixed usernames — `standard_user`, `lo
 
 #### 4.1. Logout from the side menu returns the user to the login page
 
-**File:** `apps/ui/tests/auth.spec.ts`
+**File:** `apps/ui/tests/session-end.spec.ts`
 
 **Steps:**
   1. Starting state: logged in as standard_user (the seed's default state), at https://www.saucedemo.com/inventory.html. Click button "Open Menu".
@@ -132,7 +132,7 @@ The login page (`/`) accepts one of six fixed usernames — `standard_user`, `lo
 
 #### 4.2. After logout, the inventory page can no longer be opened
 
-**File:** `apps/ui/tests/auth.spec.ts`
+**File:** `apps/ui/tests/session-end.spec.ts`
 
 **Steps:**
   1. Starting state: logged in as standard_user, at https://www.saucedemo.com/inventory.html. Open the side menu and click button "Logout".
@@ -143,7 +143,7 @@ The login page (`/`) accepts one of six fixed usernames — `standard_user`, `lo
 
 #### 4.3. Going back in history after logout does not restore the protected page
 
-**File:** `apps/ui/tests/auth.spec.ts`
+**File:** `apps/ui/tests/session-end.spec.ts`
 
 **Steps:**
   1. Starting state: logged in as standard_user, at https://www.saucedemo.com/inventory.html. Open the side menu and click button "Logout".
@@ -168,7 +168,7 @@ The login page (`/`) accepts one of six fixed usernames — `standard_user`, `lo
 
 #### 5.2. An expired session sends the user to login on the next page load
 
-**File:** `apps/ui/tests/auth.spec.ts`
+**File:** `apps/ui/tests/session-end.spec.ts`
 
 **Steps:**
   1. Starting state: logged in as standard_user, at https://www.saucedemo.com/inventory.html. Remove the `session-username` cookie (e.g. via the browser context's cookie APIs), which is what happens when the 10-minute session expires.
@@ -182,6 +182,7 @@ Observations from exploring the app. They are not test scenarios.
 
 - `performance_glitch_user` takes noticeably longer to log in than the other accounts (roughly 5-6 seconds versus about 1 second). The delay is inside the Login click, which stays within the configured 10-second action timeout, so no special timeout is needed.
 - Both the Username and Password inputs get the red error state and an X-circle icon on every validation failure, even when only one field is the problem. This looks like a minor UI quirk. It is styling only (CSS classes and icons with no accessible name), so the tests don't assert on it.
+- Logout (section 4) and the expired session (5.2) end a session, so they live in `session-end.spec.ts` and run in the `session-end` project, after every other test and one at a time. Every test shares the saved sessions, one per user. On SauceDemo today, logging out or clearing cookies in one browser context doesn't end another context's session for the same user (checked with two contexts sharing one saved session), but a site with server-side sessions would log every test using that user out.
 - Direct-URL protected-page errors ignore the query string: opening /inventory-item.html?id=4 while logged out names only '/inventory-item.html'.
 - The app does not watch the session cookie: removing `session-username` while a protected page is already shown does not redirect right away. Only the next navigation (a reload or any in-app link, all of which are full page loads) is blocked.
 - Dismissing an error clears the message and the error styling on the inputs, but keeps whatever was typed into Username and Password. A failed login also keeps the typed values.

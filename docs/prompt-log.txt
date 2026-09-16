@@ -8,7 +8,7 @@ build this project, all sessions, in chronological order.
   AI blocks    (dashed border)  the replies; "  > Tool: ..." lines are actions
                                 the AI took (reading files, running commands, edits)
 
-Last generated: 2026-09-16 17:48
+Last generated: 2026-09-16 18:26
 
 
 ================================================================================
@@ -1684,6 +1684,246 @@ The catalog work is committed as `da5bed3`. The shopping cart tests are in `apps
 `docs/prompt-log.txt` is updated with all 4 sessions, and the password doesn't appear in it. It isn't committed. It stops just before this reply, which the next run will pick up.
 
 
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 17:48 |
++------------------------------------------------------------------------------+
+
+Commit changes
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 17:48
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Check status and CLAUDE.md diff before staging
+
+The CLAUDE.md diff contains only my changes. I'll stage the cart work by path, leaving out the API clients and the `create-pr` skill changes, which aren't mine.
+
+  > Bash: Stage cart work by path, check secrets, commit
+
+\eCanary: Checked!\e
+
+The shopping cart tests are committed as `89401d8` on `d/ui-test-coverage`. The commit covers the cart tests and their page objects, the totals oracle, both plan files, the CLAUDE.md updates and the refreshed prompt log.
+
+None of the staged files contain the password, `.env`, saved sessions or test output. Nothing is pushed yet.
+
+I left out the other uncommitted work in the repo: the API client changes (`base.api.ts`, `albums.api.ts` and the others, plus `posts.api.ts`) and the `create-pr` skill edits.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 17:49 |
++------------------------------------------------------------------------------+
+
+/compact
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 17:49 |
++------------------------------------------------------------------------------+
+
+/compact
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 17:51 |
++------------------------------------------------------------------------------+
+
+Ok now lets work on checkout-flow i want you to add following: user can complete the checkout flow, checkout flow overview page shows correct information, checkout flow fails if user information is not complete. Make sure to lang on the url without clikcing through it is a good securty and edge case. Add any other that i might have missed.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 17:51
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+\eCanary: Checked!\e
+
+I'll start by rereading the guidelines and the pieces the checkout tests will build on.
+
+  > Read: ~/VNDNT/docs/guidelines/ui-tests.md
+  > Read: ~/VNDNT/docs/guidelines/general.md
+  > Read: ~/VNDNT/specs/cart.md
+  > Bash: Show repo status and read related UI files
+  > Bash: Read auth tests, plan headings and agent setup
+
+The checkout tests will build on the cart work. Next I'll start the planner on a checkout plan in the background. While it runs, I'll check the checkout pages myself with a script.
+
+  > Agent: Plan checkout flow tests
+  > Bash: List scratchpad probe scripts and show latest
+  > Bash: Probe checkout pages, validation and direct URLs
+  > Bash: Probe PDF order button and other users' checkout
+  > Bash: Extract text from downloaded order PDF
+  > Read: /private/tmp/claude-501/-Users-dmitriiskrylev-VNDNT/920b7552-6521-461d-a468-44e359159d7a/scratchpad/order.pdf
+  > Bash: Read details page object, card component and config
+
+Now the page objects:
+
+  > Write: ~/VNDNT/apps/ui/pages/checkout-step-one.page.ts
+  > Write: ~/VNDNT/apps/ui/pages/checkout-step-two.page.ts
+  > Write: ~/VNDNT/apps/ui/pages/checkout-complete.page.ts
+  > Edit: ~/VNDNT/apps/ui/components/cart-item.component.ts
+  > Edit: ~/VNDNT/apps/ui/fixtures/pages.fixture.ts
+  > Bash: Add checkout complete page fixture
+
+Now the checkout oracle:
+
+  > Write: ~/VNDNT/apps/ui/data-models/checkout.oracle.ts
+
+Now the spec:
+
+  > Write: ~/VNDNT/apps/ui/tests/checkout.spec.ts
+  > Bash: Run typecheck and lint
+  > Bash: Check line widths and run checkout spec
+
+All 10 failures are the expected findings. I'll check the messages for the Overview and blank-field failures to confirm they fail for the right reason.
+
+  > Bash: Show failure reasons for overview and blank-field tests
+
+All failures are the right findings. Next I'll fix the two lines over 120 characters, then check the passing tests can actually fail.
+
+  > Bash: Show the two overlong lines
+  > Edit: ~/VNDNT/apps/ui/tests/checkout.spec.ts
+  > Edit: ~/VNDNT/apps/ui/data-models/checkout.oracle.ts
+
+Next I'll run mutation checks: a temporary copy of the spec with its actions broken, plus temporary oracle edits. Every passing test should then fail.
+
+  > Bash: Run mutated checkout spec and oracle, then restore
+  > Bash: Repeat passing checkout tests ten times
+  > Bash: Read Back Home failure context
+
+One test failed once in 150 runs. After Finish, the Back Home click didn't navigate. I'll rerun that test repeatedly with tracing on to find the race rather than guess.
+
+  > Bash: Repeat Back Home test with traces on failure
+  > Bash: Track Back Home button position after Finish
+  > Bash: Add expectLoaded to complete page and use it
+
+To prove the fix, I'll delay the pony image on purpose in two temporary copies of the Back Home test, one without the wait and one with it. That makes the race easy to reproduce.
+
+  > Bash: Compare Back Home with and without the image wait
+
+The delay was too long, so the shift happened after the click. I'll narrow it to the window right after render.
+
+  > Bash: Retry the race with a short random image delay
+  > Read: ~/VNDNT/apps/ui/test-results/checkout-Completing-checko-951b9-product-list-with-Back-Home-chromium-repeat8/test-faile...
+
+The screenshot was cleaned up by later runs. I'll try to reproduce the original flake under load, with traces kept on failure, using the test without the new wait.
+
+  > Bash: Stress Back Home test without the wait
+  > Bash: Force a layout shift between mousedown and mouseup
+  > Bash: Rerun the original test mix twenty times with traces
+  > Bash: Check why the late repeats failed
+  > Bash: Print the error details of a late failure
+  > Bash: Remove the unproven wait and read the planner's plan
+  > Bash: Inspect how the receipt PDF stores its text
+  > Bash: Verify empty overview totals and PDF button on direct access
+
+Both claims hold. Now I'll rewrite the plan so it matches the tests, with the notes at the end:
+
+  > Write: ~/VNDNT/specs/checkout.md
+  > Bash: Read UI config, auth setup, env and saved session shape
+  > Bash: Check whether logout in one context ends others
+  > Bash: Look up teardown and per-project workers in Playwright types
+  > Bash: Read teardown and project workers docs
+  > Bash: Find session-ending tests, base settings and docs to update
+
+Quick update: I'm moving the logout and expired-session tests into their own project. It runs after `chromium`, one test at a time, whether `chromium`'s tests pass or fail.
+
+  > Bash: Move session-ending tests into session-end.spec.ts
+
+Now the config:
+
+  > Bash: Add session-end project and list the UI tests
+
+Typecheck and lint pass, and `session-end` shows up as its own project. Next I'll update CLAUDE.md and the auth plan to match.
+
+  > Read: ~/VNDNT/CLAUDE.md
+  > Read: ~/VNDNT/specs/auth.md
+  > Bash: Update CLAUDE.md and auth plan for session-end
+  > Bash: Run the full UI suite with setup and session-end
+  > Bash: Show the order projects finished in
+
+`session-end` ran last, after all 93 `chromium` tests, even with findings failing. Last steps: refresh the prompt log and check that no changed file contains the password.
+
+  > Bash: Regenerate prompt log and check for the password
+
+\eCanary: Checked!\e
+
+I've added checkout tests in `apps/ui/tests/checkout.spec.ts` (24 tests) and moved the session-ending tests into a separate project that runs last, one test at a time. Nothing is committed.
+
+## Checkout tests
+Products in the cart are set up without clicking, and expected values come from a new `checkout.oracle.ts`. I also added a page object for the confirmation page and extended the two checkout step page objects.
+
+- **Completing checkout:** placing an order from the cart through to the confirmation, the confirmation's text and image, the cart being emptied, Back Home, and the "Generate PDF order" download. That button was new; I found it while exploring the site.
+- **Overview:** every product in cart order, payment and shipping information, and Cancel keeping the cart. The totals are already checked for every cart size in `cart.spec.ts`, so I didn't repeat them.
+- **Incomplete information:** one test each for an empty form, each missing field, and each field containing only spaces. Also dismissing the error, continuing once the field is filled, and Cancel back to the cart.
+- **Opening a checkout page by its URL:** the rule is that a page opens only once the steps before it are done. Otherwise the buyer is sent to the first unfinished step: the cart if it's empty, then Your Information, then the overview. There are 6 cases.
+
+## Findings (10 new failing tests)
+- **Direct URLs:** all 6 tests fail. Every checkout page opens by its URL. The confirmation page shows "Thank you for your order!" for an order that was never placed, with the products still in the cart. An empty cart can go through Finish.
+- **Fields containing only spaces** are accepted (3 tests).
+- **Onesie typo** ("sleeved") also appears on the overview (1 test).
+
+Other findings are recorded in the notes of `specs/checkout.md`: the empty overview shows "$0" without cents, problem_user can't type a last name, and error_user's Finish does nothing.
+
+## Tests that end a session
+None of the checkout tests log out or clear cookies. The Logout and Expired session tests were in `auth.spec.ts` and ran in parallel with everything else. They're now in `session-end.spec.ts`, which runs in a new `session-end` project after `chromium`, one test at a time, even when `chromium` has failures. I updated CLAUDE.md and `specs/auth.md` to match.
+
+I also checked SauceDemo directly: logging out in one browser context doesn't end another context's session for the same user, because the session is just a cookie in each context. So nothing was breaking yet, but the tests are now safe if the site ever keeps sessions on its server.
+
+## Test results
+- **Lint and typecheck:** pass.
+- **Full UI run:** 90 passed, 17 failed. All 17 failures are known findings: the 7 from before plus the 10 above. `session-end` ran after all 93 `chromium` tests.
+- **Can the tests fail?** I broke each test's actions or expected values on purpose, and every one of them failed.
+- **Flakiness:** 10 repeats of the passing checkout tests gave 145 passed and 1 failed. In that failure, Back Home was clicked and the page didn't move. I couldn't reproduce it: 200 more runs passed, and forcing the page to shift mid-click didn't break it either. I didn't add a wait I couldn't justify, and the failure is written up in the plan's notes.
+
+## Decisions for you
+- **Receipt contents:** the PDF test only checks the file name. I opened one receipt by hand and the name, products and totals were right. Checking them in the test needs a PDF-reading library such as `pdfjs-dist`. Should I add one?
+- **Committing:** CLAUDE.md now also contains someone else's uncommitted `contract/` line from the API work. When committing, stage only my parts of that file. The prompt log is up to date.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 18:25 |
++------------------------------------------------------------------------------+
+
+add test results to git ignore
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 18:25
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Show gitignore and check test output rules
+
+\eCanary: Checked!\e
+
+I didn't change anything: `.gitignore` already ignores test results. Lines 12–15 have this rule:
+
+```
+# Playwright output (any depth, one set per app)
+test-results/
+playwright-report/
+blob-report/
+```
+
+A folder rule without a leading `/` matches at any depth. `git check-ignore` confirms it covers `apps/ui/test-results`, `apps/api/test-results` and `apps/ui/playwright-report`. None of those files are tracked, and none appear in `git status`.
+
+If you're still seeing test output show up somewhere, tell me the path and I'll add a rule for it.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 18:26 |
++------------------------------------------------------------------------------+
+
+nice all look good, commit this
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 18:26
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Show status and the CLAUDE.md diff
+  > Bash: Refresh prompt log and review UI diffs
+
+
 ================================================================================
 SESSION 4 of 4  |  started 2026-09-16 16:55  |  id 3dbf697c
 ================================================================================
@@ -1855,4 +2095,189 @@ The prompt log is refreshed and nothing in it was removed.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   > Bash: Regenerate prompt log and confirm nothing was removed
+
+I updated `docs/prompt-log.txt` and nothing was erased: no existing line was removed. It now has 47 prompts across 4 sessions, including this `/prompt-log` run. This reply isn't in the log yet; the next run will add it. Nothing is committed.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 17:55 |
++------------------------------------------------------------------------------+
+
+Lest add API contract and data-snapshot checks test for each reseoruce. Simple CRUD validation, bacase we dont have SWAGGE doc lets use our own types to assert the expecteed results. Usually we would have a source of truth fot this. create a subfolder under test and palve tests there.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 17:56
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Read current CLAUDE.md, git state and UI oracle example
+  > Bash: Scan general guide for relevant test design rules
+  > Bash: Compare live API data with published JSONPlaceholder dataset
+  > Bash: Inspect dataset records and field formats
+  > Bash: Write Zod schemas for all six resources
+
+Next, generating the snapshot files from the published dataset with a script, so no values get mistyped by hand.
+
+  > Bash: Generate typed snapshot files from published dataset
+
+Snapshots are generated. Now the builders, which make unique, obviously fake payloads.
+
+  > Bash: Write builders and register all clients as fixtures
+
+Builders and fixtures typecheck. I'll write the posts spec first as the template and run it before writing the other five.
+
+  > Write: ~/VNDNT/apps/api/tests/contract/posts.spec.ts
+  > Bash: Typecheck, lint and run the posts contract spec
+
+The posts template passes (11 tests) and lint is clean. Rather than rewriting the same spec five times by hand, I'll generate the other five from it and swap in each resource's own PATCH change.
+
+  > Bash: Generate remaining resource specs, retire old posts spec, run suite
+  > Bash: Mutation-check snapshot and schemas, restore, repeat suite
+  > Bash: Remove snapshot files and drop snapshot use from builders
+  > Write: ~/VNDNT/apps/api/fixtures/clients.fixture.ts
+  > Write: ~/VNDNT/apps/api/tests/contract/posts.spec.ts
+  > Bash: Regenerate specs from template, typecheck, lint, run suite
+  > Bash: Mutation-check schemas, restore, repeat suite, scan API changes
+  > Bash: Regenerate prompt log and confirm nothing was removed
+
+The API tests are in `apps/api/tests/contract/`, one spec per resource, and all 43 pass (7 per resource plus the setup check). Following your correction, they check types and structure against our own Zod schemas, and no dataset content is hardcoded. Nothing is committed.
+
+**What each spec checks** (posts, comments, albums, photos, todos, users):
+- **Contract:**
+  - The list returns 200 with a JSON content type, and every item matches the schema. An empty list fails, so the check can't pass with nothing to check.
+  - Getting a record by id returns 200 and a body that matches the schema, with the id that was asked for.
+  - Id `0` returns 404 with an empty body. The schemas say ids are positive, so `0` can't exist.
+- **CRUD:**
+  - Create returns 201 and echoes the payload with a generated id.
+  - PUT echoes the full new record.
+  - PATCH applies the sent fields.
+  - Delete returns 200 with an empty body.
+  - Every write response is also checked against the schema.
+
+JSONPlaceholder doesn't save writes, so the write tests only check the response. The only values they compare are ones the test itself sent. If you want structure only there too, I can drop those echo checks.
+
+**Supporting code:**
+- **Schemas** in `apps/api/data-models/*.model.ts`: all of them reject unexpected extra fields, including inside the user's `address`, `geo` and `company`. They also check formats: emails, photo URLs and coordinate strings.
+- **Builders** (`*.builder.ts`) make unique, obviously fake payloads: `example.test` emails and a 555-01xx phone number.
+- **Fixtures:** all six clients are now available to specs. Tests that need an existing record get an `existing<Resource>Id` fixture, which lists one record at runtime and uses its id.
+- **Removed:** I deleted the snapshot files I'd made before your correction. I also deleted the old `apps/api/tests/posts.spec.ts`, whose one test is covered by `contract/posts.spec.ts`.
+
+**Checks:**
+- **Tests catch breakage:** I broke two schemas on purpose (a missing nested field and a wrong type). All 10 tests that check those shapes failed, then passed once the schemas were restored.
+- **Stable:** three repeated runs gave 127 passed.
+- **Lint and scan:** typecheck and lint pass, and the sensitive data scan of the API changes is clean.
+
+**Before you open a PR:** the other session still has uncommitted UI changes on the same branch (`checkout.spec.ts`, the checkout pages and more). A PR from either session will pick up both sets of changes unless files are staged separately.
+
+The prompt log is refreshed; the only line removed was the "Last generated" timestamp.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 18:09 |
++------------------------------------------------------------------------------+
+
+Ok the contract folder is mixing 2 things. Contract should only be status, headers and strict schema checks, the CRUD blocks are testing behavior (echo, replace, patch) so they are functional. Lets move the CRUD describe blocks into tests/functional with the same file names per resource and keep tests/contract for schema only. Make sure nothing else changes in the tests and add one line to CLAUDE.md framework layout that contract here means response schema, not Pact. Run api tests after to confirm all pass.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 18:10
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Back up contract specs and record the current test list
+  > Read: ~/VNDNT/CLAUDE.md
+  > Bash: Split each spec into contract and functional files, verify code unchanged
+
+Test code is unchanged in all six files; only the imports were split. Now the CLAUDE.md line.
+
+  > Edit: ~/VNDNT/CLAUDE.md
+  > Bash: Typecheck, lint, compare test list, run API tests
+  > Bash: Regenerate prompt log and confirm nothing was removed
+
+The CRUD blocks are now in `apps/api/tests/functional/`, with the same file name per resource, and `tests/contract/` holds only the contract tests. All 43 API tests pass.
+
+- **Test code unchanged:** a script split each file and checked that the two halves, minus imports, rebuild the original exactly. The only other change is the imports: contract files no longer import the builder, and functional files import the builder, schema and fixtures they need.
+- **Same tests:** the list of test names is identical before and after, apart from the folder, and no CRUD block is left in `contract/`.
+- **CLAUDE.md:** I added one line under the API `tests/` entry in the layout: "contract/ means response schema (status, headers, strict Zod schema), not Pact. functional/ checks behavior". That's the only change to the file.
+- **Checks:** typecheck and lint pass.
+
+One contract test still checks more than schema: "get returns the requested post in the contract shape" also checks that the returned `id` matches the id requested. You asked for no changes to the tests, so I left it. If you want `contract/` to be strictly status, headers and schema, that check could move to `functional/`.
+
+The prompt log is refreshed; the only line removed was the "Last generated" timestamp. Nothing is committed.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 18:14 |
++------------------------------------------------------------------------------+
+
+/prompt-log
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 18:14
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Regenerate prompt log and confirm nothing was removed
+
+I updated `docs/prompt-log.txt`, and nothing was erased: apart from the "Last generated" timestamp, the run only added lines. The log now holds 54 prompts across 4 sessions, including this `/prompt-log` run. This reply isn't in the log yet; the next run will add it. Nothing is committed.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 18:15 |
++------------------------------------------------------------------------------+
+
+current api tests only check shape and CRUD echo, lets add real functional tests. Add: create is not persisted (GET new id is 404), delete is not persisted (GET still 200), PATCH keeps other fields unchange filters return only matching items and no match returns empty array, nested routes return same ids as the filter (posts comments, user posts albums todos), paging and sorting with _limit _page _sort _order. Also pin known api bugs with test.fail: PUT on missing id returns 500 and POST with malformed json returns 500. Use existing clients, keep it DRY with dynamic tests where it makes sense, put them in tests/functional and run api tests after
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 18:18
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+I'll check how the live API actually behaves for each case before writing anything: persistence, filters, nested routes, paging headers, sorting and the two bugs.
+
+  > Bash: Probe live API behaviors for all planned functional tests
+  > Bash: Compare nested routes to filters and check UI sort pattern
+  > Write: ~/VNDNT/apps/api/utils/records.ts
+  > Write: ~/VNDNT/apps/api/fixtures/clients.fixture.ts
+  > Write: ~/VNDNT/apps/api/tests/functional/persistence.spec.ts
+  > Write: ~/VNDNT/apps/api/tests/functional/filtering.spec.ts
+  > Write: ~/VNDNT/apps/api/tests/functional/nested-routes.spec.ts
+  > Write: ~/VNDNT/apps/api/tests/functional/paging-sorting.spec.ts
+  > Write: ~/VNDNT/apps/api/tests/functional/known-bugs.spec.ts
+
+The other session changed CLAUDE.md, but only its UI section. Now typecheck, lint and the API run.
+
+  > Bash: Typecheck, lint and run the API suite
+  > Bash: Confirm pinned bugs fail with 500, mutation-check sorting, repeat suite
+  > Bash: Check CLAUDE.md line survived and refresh prompt log
+
+The new functional tests are in `apps/api/tests/functional/`, and the full API run passes: 117 tests, including the 12 pinned bugs, which fail as expected. Nothing is committed.
+
+Each behavior is one table of cases that runs as separate tests per resource, through the existing clients:
+
+| File | What it checks | Tests |
+|---|---|---|
+| `persistence.spec.ts` | A created record's new id returns 404, a deleted record still returns 200, and PATCH returns the record from a GET just before, with only the sent field changed. All 6 resources. | 18 |
+| `filtering.spec.ts` | Filtering by the parent id returns only matching items, and filtering by `0` returns `[]`. Covers posts, comments, albums, photos and todos. | 10 |
+| `nested-routes.spec.ts` | The nested route returns the same ids, in the same order, as the matching filter: `/posts/{id}/comments` and `/users/{id}/posts`, `albums` and `todos`. | 4 |
+| `paging-sorting.spec.ts` | `_limit`, `_page`, the `x-total-count` header, and `_sort` with `_order` both ascending and descending. All 6 resources. | 30 |
+| `known-bugs.spec.ts` | Two bugs pinned with `test.fail`: PUT on a missing id should return 404, and POST with malformed JSON should return 400. All 6 resources. | 12 |
+
+- **No hardcoded data:** filter values and parent ids come from an existing record at runtime. Expected pages and sort orders are worked out from the whole collection, listed at runtime.
+- **Supporting code:**
+  - **Fixtures:** a spec now sets `test.use({ resource: 'posts' })` and gets `api`, `existingRecord` and `allRecords` for that resource. A `clients` fixture holds all six clients, and the existing fixtures now come from it; the specs that use them are unchanged.
+  - **Helpers:** the reading, id and sort helpers are in `apps/api/utils/records.ts`.
+- **Malformed JSON header:** the malformed JSON test sets `Content-Type: application/json` itself; without it the API ignores the body and returns 201. For those tests only, that header replaces the config's `Accept` header.
+
+**Checks:**
+- **Pinned bugs:** the error of every `test.fail` test is a real 500, not some other failure. That matters because `test.fail` can't tell a 500 from another wrong status.
+- **Tests catch breakage:** when I broke the descending sort in the helper, all 6 descending sort tests failed. They passed again once it was restored.
+- **Stable:** a doubled run gave 233 passed.
+- **Lint:** typecheck and lint pass.
+
+**Decisions for you:**
+- **Missing cases:** users have no parent to filter by, so the filter tests skip them. `/albums/{id}/photos` wasn't in your list, so it isn't tested; it would be one more row in the nested routes table.
+- **CLAUDE.md:** it doesn't describe the new `resource` fixture pattern yet. A short note would help the other session, if you want one.
+- **Error details:** both 500 errors send back the server's internal error details. A real API would treat that as a bug too.
+
+The prompt log is refreshed and nothing was removed. Your earlier "not Pact" line in CLAUDE.md is still there after the other session's edits.
 

@@ -1,6 +1,6 @@
 import type { Locator } from '@playwright/test';
 
-// One row on the cart page
+// One product row on the cart page or the checkout overview. The overview's rows have no Remove button.
 export class CartItemComponent {
   readonly quantity: Locator;
   readonly name: Locator;

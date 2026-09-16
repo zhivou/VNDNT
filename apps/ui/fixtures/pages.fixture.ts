@@ -1,6 +1,7 @@
 import { test as base } from '@playwright/test';
 import type { Product } from '@ui/data-models/product-catalog.oracle';
 import { CartPage } from '@ui/pages/cart.page';
+import { CheckoutCompletePage } from '@ui/pages/checkout-complete.page';
 import { CheckoutStepOnePage } from '@ui/pages/checkout-step-one.page';
 import { CheckoutStepTwoPage } from '@ui/pages/checkout-step-two.page';
 import { InventoryItemPage } from '@ui/pages/inventory-item.page';
@@ -15,6 +16,7 @@ type PageFixtures = {
   cartPage: CartPage;
   checkoutStepOnePage: CheckoutStepOnePage;
   checkoutStepTwoPage: CheckoutStepTwoPage;
+  checkoutCompletePage: CheckoutCompletePage;
 };
 
 type StateFixtures = {
@@ -40,6 +42,9 @@ export const test = base.extend<PageFixtures & StateFixtures>({
   },
   checkoutStepTwoPage: async ({ page }, use) => {
     await use(new CheckoutStepTwoPage(page));
+  },
+  checkoutCompletePage: async ({ page }, use) => {
+    await use(new CheckoutCompletePage(page));
   },
   fillCart: async ({ context }, use) => {
     await use(async (products) => {

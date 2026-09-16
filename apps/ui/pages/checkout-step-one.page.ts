@@ -8,14 +8,24 @@ export class CheckoutStepOnePage {
   readonly firstName: Locator;
   readonly lastName: Locator;
   readonly postalCode: Locator;
+  readonly error: Locator;
+  readonly dismissError: Locator;
+  readonly cancelButton: Locator;
   readonly continueButton: Locator;
 
-  constructor(page: Page) {
+  constructor(private readonly page: Page) {
     this.title = page.getByTestId('title');
     this.firstName = page.getByPlaceholder('First Name');
     this.lastName = page.getByPlaceholder('Last Name');
     this.postalCode = page.getByPlaceholder('Zip/Postal Code');
+    this.error = page.getByRole('alert');
+    this.dismissError = page.getByRole('button', { name: 'Dismiss error' });
+    this.cancelButton = page.getByRole('button', { name: 'Cancel' });
     this.continueButton = page.getByRole('button', { name: 'Continue' });
+  }
+
+  async goto(): Promise<void> {
+    await this.page.goto(this.path);
   }
 
   async submitInformation(buyer: Buyer): Promise<void> {

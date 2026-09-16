@@ -23,11 +23,22 @@ export default defineConfig(baseConfig, {
       testDir: './setup',
       testMatch: 'auth.setup.ts',
       dependencies: ['precondition'],
+      // Runs once chromium has finished, whether its tests passed or failed
+      teardown: 'session-end',
     },
     {
       name: 'chromium',
       testDir: './tests',
+      testIgnore: 'session-end.spec.ts',
       dependencies: ['auth'],
+      use: { storageState: storageStatePath(SAUCE_USERS.standard) },
+    },
+    {
+      // Tests that end one of the shared sessions, run last and one at a time so no other test loses its session
+      name: 'session-end',
+      testDir: './tests',
+      testMatch: 'session-end.spec.ts',
+      workers: 1,
       use: { storageState: storageStatePath(SAUCE_USERS.standard) },
     },
   ],

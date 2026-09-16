@@ -2,7 +2,7 @@
 import { LOGIN_ERRORS, PROTECTED_PAGES, REJECTED_LOGINS } from '@ui/data-models/auth.model';
 import { SAUCE_USERS, SESSION_USERS } from '@ui/data-models/sauce-user.model';
 import { expect, test } from '@ui/fixtures/pages.fixture';
-import { emptyStorageState, storageStatePath } from '@ui/utils/auth';
+import { emptyStorageState } from '@ui/utils/auth';
 import { env } from '@ui/utils/env';
 
 test.describe('Login', () => {
@@ -61,46 +61,6 @@ test.describe('Rejected login', () => {
   });
 });
 
-test.describe('Logout', () => {
-  // Every user who can log in, starting from the session the auth setup project saved for them
-  for (const user of SESSION_USERS) {
-    test.describe(`as ${user}`, () => {
-      test.use({ storageState: storageStatePath(user) });
-
-      test('returns to the login page', async ({ inventoryPage, loginPage, page }) => {
-        await inventoryPage.goto();
-
-        await inventoryPage.header.logout();
-
-        await expect(page).toHaveURL(loginPage.path);
-        await expect(loginPage.submit).toBeVisible();
-      });
-    });
-  }
-
-  test('blocks the inventory page afterwards', async ({ inventoryPage, loginPage, page }) => {
-    await inventoryPage.goto();
-    await inventoryPage.header.logout();
-    await expect(page).toHaveURL(loginPage.path);
-
-    await inventoryPage.goto();
-
-    await expect(page).toHaveURL(loginPage.path);
-    await expect(loginPage.error).toHaveText(LOGIN_ERRORS.loginRequired(inventoryPage.path));
-  });
-
-  test('does not restore the inventory page on Back', async ({ inventoryPage, loginPage, page }) => {
-    await inventoryPage.goto();
-    await inventoryPage.header.logout();
-    await expect(page).toHaveURL(loginPage.path);
-
-    await page.goBack();
-
-    await expect(page).toHaveURL(loginPage.path);
-    await expect(loginPage.error).toHaveText(LOGIN_ERRORS.loginRequired(inventoryPage.path));
-  });
-});
-
 test.describe('Protected pages', () => {
   test.use({ storageState: emptyStorageState });
 
@@ -112,17 +72,4 @@ test.describe('Protected pages', () => {
       await expect(loginPage.error).toHaveText(LOGIN_ERRORS.loginRequired(path));
     });
   }
-});
-
-test.describe('Expired session', () => {
-  test('sends the user to the login page on the next page load', async ({ inventoryPage, loginPage, page }) => {
-    await inventoryPage.goto();
-    // SauceDemo's session cookie expires after 10 minutes. Clearing cookies has the same effect right away.
-    await page.context().clearCookies();
-
-    await page.reload();
-
-    await expect(page).toHaveURL(loginPage.path);
-    await expect(loginPage.error).toHaveText(LOGIN_ERRORS.loginRequired(inventoryPage.path));
-  });
 });

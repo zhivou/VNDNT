@@ -70,12 +70,13 @@ The repo holds two self-contained Playwright suites, one per service, each in it
 - Each app config is `defineConfig(baseConfig, { ... })` and adds only what is specific to its service: `use` (base URL, device, headers) and `projects`. Don't repeat a global setting in an app config. If every app needs a change, make it in `baseConfig`.
 - `defineConfig` merges `use` and `expect` key by key, merges `projects` by name, and lets any other top-level key in the app config replace the base value.
 - Projects: each project sets its own `testDir`, `./setup` for setup projects and `./tests` for specs. Leave `testDir` out of the top level of an app config.
-  - UI: `precondition` → `auth` → `chromium`. Each runs only if the one before it passed.
+  - UI: `precondition` → `auth` → `chromium` → `session-end`. The first three each run only if the one before it passed. `session-end` is the teardown of `auth`, so it runs once `chromium` has finished, even if tests failed.
     - `precondition` (`setup/precondition.setup.ts`) checks that the base URL responds. Add any other check that must pass before a login here.
     - `auth` (`setup/auth.setup.ts`) logs in every user in `SESSION_USERS` through the login page and saves each session with `createStorageStateUI` to `apps/ui/.auth/<username>.json`. That's every user except `locked_out_user`, which SauceDemo refuses. SauceDemo has no login API, so the UI is the only way to get a session.
     - `chromium` runs the specs logged in as `standard_user`. A spec switches user with `test.use({ storageState: storageStatePath(SAUCE_USERS.problem) })`, and tests that start logged out use `test.use({ storageState: emptyStorageState })`.
     - SauceDemo keeps the cart only in localStorage. A test that needs products in the cart calls `fillCart([CATALOG.backpack, ...])` before opening a page, instead of clicking Add to cart. Click through the UI only when adding or removing is what the test checks.
     - A SauceDemo session lasts 10 minutes (the `session-username` cookie), so a saved session only outlives the run that made it by a few minutes.
+    - `session-end` runs `tests/session-end.spec.ts` last, one test at a time (`workers: 1`). Every test shares the saved sessions, one per user, and there are no more users to create. A test that ends a session (logging out, clearing cookies) could log out every other test using that user, so it goes in `session-end.spec.ts`, never in a `chromium` spec. `chromium` ignores that file.
   - API: `setup` (`setup/health.setup.ts`) checks that the API responds, then `api` runs the specs.
 - Each app writes its own `test-results/` and `playwright-report/` inside its folder. Keep `outputDir` and the reporter output paths explicit in `baseConfig`. Left to Playwright's defaults, both apps would write to the repo root and overwrite each other.
 
@@ -122,7 +123,7 @@ UI tests treat SauceDemo's data as synthetic: they're written as if the test aut
 - `npm run test:ui` or `npm run test:api` runs one app. Its setup projects run first.
 - `npm test` runs the API app, then the UI app.
 - `npm run lint` and `npm run typecheck` must pass before a PR.
-- `npx playwright test -c apps/ui --project=chromium --no-deps` skips the setup projects and reuses the saved sessions, for local debugging. It only works within 10 minutes of the last full run.
+- `npx playwright test -c apps/ui --project=chromium --no-deps` skips the setup projects and `session-end` and reuses the saved sessions, for local debugging. It only works within 10 minutes of the last full run.
 - `npx playwright show-report apps/ui/playwright-report` opens an app's last report.
 
 ### Playwright test agents

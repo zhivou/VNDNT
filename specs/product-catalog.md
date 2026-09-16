@@ -4,7 +4,7 @@
 
 SauceDemo (https://www.saucedemo.com) product catalog: the inventory page (`/inventory.html`) lists 6 products with a sort dropdown, and each product has a details page (`/inventory-item.html?id=N`) that opens from either the product's image or its name. Opening a product is a client-side navigation: the URL changes before the details page renders, and the list and the details page use the same `data-test` names for a product's name, description, price and cart button.
 
-All scenarios run **logged in as standard_user**, start with an **empty cart**, and start on `/inventory.html` unless a scenario says otherwise.
+All scenarios run **logged in as standard_user**, start with an **empty cart**, and start on `/inventory.html` unless a scenario says otherwise. Adding products to the cart and removing them is planned in `specs/cart.md`.
 
 **Synthetic data.** The catalog is treated as data the test automation seeded, so the expected values below are what the store is **meant** to show, not whatever the site renders. SauceDemo plants mistakes on purpose, so no observed value is copied into an expected result without checking it. When the site differs, the test fails and the difference is a finding (see Notes). The tests read these values from the oracle, `apps/ui/data-models/product-catalog.oracle.ts`.
 
@@ -107,88 +107,6 @@ Every image's alt text is the product name.
 **Steps:**
   1. Open `/inventory-item.html?id=2` (Sauce Labs Onesie) and click button "Back to products".
     - expect: The URL is `/inventory.html` and all 6 products are listed.
-
-### 4. Add to cart
-
-**Seed:** `apps/ui/tests/seed.spec.ts`
-
-#### 4.1. Add to cart on the list marks the product as added
-
-**File:** `apps/ui/tests/product-catalog.spec.ts`
-
-**Steps:**
-  1. Open `/inventory.html` and click "Add to cart" on the Sauce Labs Backpack card.
-    - expect: That card's button changes to "Remove".
-    - expect: The cart badge in the header shows "1".
-
-#### 4.2. Remove on the list takes the product out of the cart
-
-**File:** `apps/ui/tests/product-catalog.spec.ts`
-
-**Steps:**
-  1. Open `/inventory.html` and add Sauce Labs Bike Light.
-  2. Click "Remove" on the Sauce Labs Bike Light card.
-    - expect: The button changes back to "Add to cart".
-    - expect: The cart badge is gone.
-
-#### 4.3. Add to cart on the details page marks the product as added
-
-**File:** `apps/ui/tests/product-catalog.spec.ts`
-
-**Steps:**
-  1. Open `/inventory-item.html?id=1` (Sauce Labs Bolt T-Shirt) and click "Add to cart".
-    - expect: The button changes to "Remove".
-    - expect: The cart badge shows "1".
-
-#### 4.4. Remove on the details page takes the product out of the cart
-
-**File:** `apps/ui/tests/product-catalog.spec.ts`
-
-**Steps:**
-  1. Open `/inventory-item.html?id=1` and click "Add to cart".
-  2. Click "Remove".
-    - expect: The button changes back to "Add to cart".
-    - expect: The cart badge is gone.
-
-#### 4.5. A product added on the list shows as added on its details page
-
-**File:** `apps/ui/tests/product-catalog.spec.ts`
-
-**Steps:**
-  1. Open `/inventory.html` and add Sauce Labs Onesie.
-  2. Open Sauce Labs Onesie from its name link.
-    - expect: The details page's button reads "Remove".
-    - expect: The cart badge shows "1".
-
-#### 4.6. A product removed on its details page shows as not added on the list
-
-**File:** `apps/ui/tests/product-catalog.spec.ts`
-
-**Steps:**
-  1. Open `/inventory-item.html?id=2`, click "Add to cart", then "Remove".
-  2. Click "Back to products".
-    - expect: The Sauce Labs Onesie card's button reads "Add to cart".
-    - expect: The cart badge is gone.
-
-#### 4.7. The cart survives a reload
-
-**File:** `apps/ui/tests/product-catalog.spec.ts`
-
-**Steps:**
-  1. Open `/inventory.html` and add Sauce Labs Fleece Jacket.
-  2. Reload the page.
-    - expect: The Sauce Labs Fleece Jacket card's button still reads "Remove".
-    - expect: The cart badge still shows "1".
-
-#### 4.8. Every product can be added, and the badge counts them
-
-**File:** `apps/ui/tests/product-catalog.spec.ts`
-
-**Steps:**
-  1. Open `/inventory.html`. Add each product in the default order, checking after each one.
-    - expect: The added product's button reads "Remove".
-    - expect: Only the products added so far show "Remove".
-    - expect: The cart badge shows how many products have been added.
 
 ## Notes
 

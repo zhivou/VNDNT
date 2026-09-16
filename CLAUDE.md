@@ -38,7 +38,7 @@ The repo holds two self-contained Playwright suites, one per service, each in it
 │   │   ├── .auth/                 saved sessions, one <username>.json per user. Only its .gitignore is committed
 │   │   ├── components/            UI that repeats across pages (header, product card, cart row)
 │   │   ├── data-models/           types, oracles (*.oracle.ts: the data the site is meant to show), builders
-│   │   ├── fixtures/              pages.fixture.ts: page objects as fixtures, re-exports expect
+│   │   ├── fixtures/              pages.fixture.ts: page objects and fillCart as fixtures, re-exports expect
 │   │   ├── pages/                 page objects: locators and user-level actions
 │   │   ├── setup/                 *.setup.ts for the setup projects (precondition, auth)
 │   │   ├── tests/                 *.spec.ts, plus seed.spec.ts for the test agents
@@ -74,6 +74,7 @@ The repo holds two self-contained Playwright suites, one per service, each in it
     - `precondition` (`setup/precondition.setup.ts`) checks that the base URL responds. Add any other check that must pass before a login here.
     - `auth` (`setup/auth.setup.ts`) logs in every user in `SESSION_USERS` through the login page and saves each session with `createStorageStateUI` to `apps/ui/.auth/<username>.json`. That's every user except `locked_out_user`, which SauceDemo refuses. SauceDemo has no login API, so the UI is the only way to get a session.
     - `chromium` runs the specs logged in as `standard_user`. A spec switches user with `test.use({ storageState: storageStatePath(SAUCE_USERS.problem) })`, and tests that start logged out use `test.use({ storageState: emptyStorageState })`.
+    - SauceDemo keeps the cart only in localStorage. A test that needs products in the cart calls `fillCart([CATALOG.backpack, ...])` before opening a page, instead of clicking Add to cart. Click through the UI only when adding or removing is what the test checks.
     - A SauceDemo session lasts 10 minutes (the `session-username` cookie), so a saved session only outlives the run that made it by a few minutes.
   - API: `setup` (`setup/health.setup.ts`) checks that the API responds, then `api` runs the specs.
 - Each app writes its own `test-results/` and `playwright-report/` inside its folder. Keep `outputDir` and the reporter output paths explicit in `baseConfig`. Left to Playwright's defaults, both apps would write to the repo root and overwrite each other.
@@ -103,7 +104,7 @@ The repo holds two self-contained Playwright suites, one per service, each in it
 
 UI tests treat SauceDemo's data as synthetic: they're written as if the test automation had seeded the store, so every expected value is known before the test runs and never read from the page.
 
-- A feature's expected data lives in an oracle, `apps/ui/data-models/<feature>.oracle.ts`. For example, `product-catalog.oracle.ts` holds every product's id, name, description, price and image, and the order each sort option gives.
+- A feature's expected data lives in an oracle, `apps/ui/data-models/<feature>.oracle.ts`. For example, `product-catalog.oracle.ts` holds every product's id, name, description, price and image, and the order each sort option gives, and `cart.oracle.ts` holds the tax rule and works out each cart's totals.
 - Write what the store is **meant** to show. SauceDemo plants mistakes on purpose for testers to find (typos, wrong prices or images, broken sorting or buttons for some users). Never copy a value from the site into an oracle without checking that it's right, and never write an expected value that matches a mistake.
 - Derive expected results from the oracle's data and rules, for example sort orders from sorting the oracle's products, instead of lists copied from the page.
 - Match only what the store controls. For example, the build adds a hash to image file names, so match the stable part of the name.

@@ -1,0 +1,353 @@
+================================================================================
+PROMPT LOG
+================================================================================
+Full conversation between the user and the AI assistant (Claude Code) used to
+build this project, all sessions, in chronological order.
+
+  USER blocks  (solid border)   the prompts, verbatim
+  AI blocks    (dashed border)  the replies; "  > Tool: ..." lines are actions
+                                the AI took (reading files, running commands, edits)
+
+Last generated: 2026-09-16 13:11
+
+
+================================================================================
+SESSION 1 of 3  |  started 2026-09-16 12:28  |  id bc7476b8
+================================================================================
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 12:28 |
++------------------------------------------------------------------------------+
+
+Ok we are goimg to work on ~/Downloads/Senior\ QA\ Engineer\ Take-Home\ Exercise.pdf
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 12:28
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Read: ~/Downloads/Senior QA Engineer Take-Home Exercise.pdf
+  > Bash: List repo contents and initial commit
+  > Bash: Check README, remote, and toolchain versions
+  ! Interrupted by user
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 12:29 |
++------------------------------------------------------------------------------+
+
+do not do anything else I did nto ask you to do any init commits
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 12:29
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+I haven't made any commits or changed anything. The "Initial commit" (c97c0ce) was already in the repo before this session started. All I've run so far is read-only: I read the PDF, listed the repo and its git log, and checked the README, the git remote and the installed Node/Python/gh versions.
+
+I'll hold here until you tell me what to do next.
+
+
+================================================================================
+SESSION 2 of 3  |  started 2026-09-16 12:33  |  id 6833f5b5
+================================================================================
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 12:33 |
++------------------------------------------------------------------------------+
+
+We are going to work on building 2 frameworks. API and UI. We will use playwright for both as pw is now capble of covering both. First get instructions do nothing else.~/Downloads/Senior\ QA\ Engineer\ Take-Home\ Exercise.pdf
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 12:33
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Read: ~/Downloads/Senior QA Engineer Take-Home Exercise.pdf
+
+I read the instructions and haven't started any work.
+
+## Senior QA Engineer Take-Home Exercise
+
+**The task:** Use AI to help build an automated testing framework.
+
+**What to test:**
+- **Web app:** SauceDemo, https://www.saucedemo.com/
+- **API:** JSONPlaceholder, https://jsonplaceholder.typicode.com/
+
+**What you get to decide:**
+- Language and automation tools (you've picked Playwright for both)
+- How the framework is structured
+- Which scenarios to automate
+- How tests are organized and run
+- How to check the framework works
+- What to improve after reviewing what the AI produced
+
+**Repository rules:**
+- Start a new repo just for this exercise.
+- Don't clone, fork, copy or reuse an existing framework.
+- You can use libraries, official docs and public examples for reference.
+
+**What to hand in:**
+1. A link to a GitHub, GitLab or Bitbucket repo. This is required; ZIP files alone won't be accepted.
+2. A working framework that covers both the web app and the API.
+3. Every prompt used during development.
+4. Any requirements, notes or other inputs used to write or refine the prompts.
+5. An evaluation of the AI-generated framework: what worked, what didn't, and what you changed.
+
+**Time limit:** About 4 hours. They care more about your technical decisions, testing approach and evaluation of the AI output than about how many tests you write.
+
+Because the prompts are part of what you hand in, save each one as you go, starting with this one. We can keep them in a file like `docs/prompts.md` in the repo. Tell me when you're ready to start.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 12:36 |
++------------------------------------------------------------------------------+
+
+For the prompts lets create a small skill called prompt-log which will saved our converation to the same project. Use simple txt file but make sure user vs ai reponses are easy to read. Make sure to save what we already talked about.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 12:36
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Inspect project, transcripts dir, and runtimes
+  > Bash: Summarize record types in each session transcript
+  > Bash: Show raw user messages and tool calls in transcripts
+  > Write: ~/VNDNT/.claude/skills/prompt-log/prompt-log.mjs
+  > Write: ~/VNDNT/.claude/skills/prompt-log/SKILL.md
+  > Bash: Generate the prompt log and print it
+
+The log generated, but two things need fixing: the green "Canary" line wasn't removed, and home-folder paths in the AI action lines weren't shortened to `~`. I'm fixing both now.
+
+  > Bash: Inspect the raw bytes of the Canary line
+
+The transcript stores the colour codes as plain text (``), with no escape byte in front, so my pattern didn't match. Fixing that and the paths:
+
+  > Edit: ~/VNDNT/.claude/skills/prompt-log/prompt-log.mjs
+  > Edit: ~/VNDNT/.claude/skills/prompt-log/prompt-log.mjs
+  > Bash: Regenerate log and check fixes applied
+
+I created the `prompt-log` skill and used it to save our conversation so far to `docs/prompt-log.txt`. I haven't committed anything.
+
+**New files:**
+- `.claude/skills/prompt-log/SKILL.md`: the skill. Run `/prompt-log` or ask me to "update the prompt log".
+- `.claude/skills/prompt-log/prompt-log.mjs`: a small Node script with no dependencies.
+- `docs/prompt-log.txt`: the log itself.
+
+**How the log reads:**
+- **Your prompts** sit in a solid box, word for word, with a timestamp.
+- **My replies** sit under a dashed divider. Each thing I did appears as a one-line entry, such as `> Read: ~/Downloads/...pdf` or `> Bash: Generate the prompt log`, so reviewers can see what I actually did.
+- Each session gets its own header, in time order.
+
+**How it works:** The script reads Claude Code's saved session history for this project and rewrites the whole file on every run. Running it again never creates duplicates.
+
+**Things to know:**
+- **Both sessions are in the log.** That includes the earlier one where you stopped me and said "do not do anything else", which could be useful for your "what didn't work" section.
+- **I removed the green "Canary: Checked!" line from my replies**, since it comes from your personal settings and has nothing to do with the exercise.
+- **Your home folder shows as `~` instead of `~`**, so the log is safe for a public repo.
+- **The log is always one reply behind.** A reply isn't saved while I'm still writing it, so this message will appear the next time the log is updated.
+
+I can also set a hook so the log updates automatically after every reply, and you won't need to run `/prompt-log` yourself.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 12:49 |
++------------------------------------------------------------------------------+
+
+Now lets establish some docuemntations update claude.md and add 3 links to subdocs where list basing good practices for UI Tests, API tests, General Good practices. For now use general knwolage this is not a part of the take hoem task but thsi is how I would start setting good practices in the framework. For the FE make sure to include correct way of waiting for the action to complete remember PW is new gen test framwork we don't need to explicitly wait for the action to complete more look here. https://playwright.dev/docs/actionability.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 12:49
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > ToolSearch: select:WebFetch
+  > WebFetch: https://playwright.dev/docs/actionability
+  > WebFetch: https://playwright.dev/docs/best-practices
+  > WebFetch: https://playwright.dev/docs/api-testing
+  > Write: ~/VNDNT/docs/guidelines/general.md
+  > Write: ~/VNDNT/docs/guidelines/ui-tests.md
+  > Write: ~/VNDNT/docs/guidelines/api-tests.md
+  > Write: ~/VNDNT/CLAUDE.md
+  > Edit: ~/VNDNT/docs/guidelines/ui-tests.md
+
+I added the practices docs and linked them from `CLAUDE.md`. The repo had no `CLAUDE.md` yet, so I created one. I haven't committed anything.
+
+**Files:**
+- **`CLAUDE.md`:** short project summary, links to the three guides, and two working rules: do only what's asked (no unrequested commits), and use `/prompt-log` to save the conversation.
+- **`docs/guidelines/general.md`:** how to design tests, isolation and test data, assertions, how the framework is layered, the flakiness policy, and how to validate a new test (watch it fail, run it with `--repeat-each`). It also covers linting, reporting, CI and a review checklist.
+- **`docs/guidelines/ui-tests.md`:** locator priority, page objects, reusing login state, network mocking, browser coverage, debugging and a checklist.
+- **`docs/guidelines/api-tests.md`:** what to cover for each endpoint, how to assert, API client classes and data builders, cleaning up data after each test, auth and a checklist. It also warns that some sandbox APIs pretend to save writes, which is a real issue for this exercise.
+
+**Waiting, in the UI guide:** this is the longest section, and I checked it against the actionability page you linked:
+- It includes Playwright's table of which checks (visible, stable, receives events, enabled, editable) each action waits for.
+- It explains that assertions like `expect(locator).toBeVisible()` keep retrying, while `isVisible()`, `textContent()` and `count()` check only once.
+- The rule is to confirm an action finished by asserting on the result the user sees, not by adding a wait.
+- A "Don't / Do instead" table covers `waitForTimeout`, `waitForSelector`, `networkidle`, `force: true`, raising timeouts and waiting for spinners.
+- A short section lists the few cases where waiting is correct: `waitForResponse` set up before the click, `expect.poll`, `toPass`.
+
+**One decision to confirm:** the code examples are in **TypeScript**, and `CLAUDE.md` lists it as the stack. It's Playwright's main language, but tell me if you want a different one.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 13:02 |
++------------------------------------------------------------------------------+
+
+ok now lets add branch name requremetns to cloude.md make sure it is {first_initial}
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 13:04 |
++------------------------------------------------------------------------------+
+
+ok now lets add branch name requremetns to cloude.md make sure it is {first_initial}/branch-name. Also add a skill that create a pr. This skill will always make a short summary of what has been done in thsi PR.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 13:04
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Check git remote, user name, and GitHub CLI auth
+  > Edit: ~/VNDNT/CLAUDE.md
+  > Write: ~/VNDNT/.claude/skills/create-pr/SKILL.md
+  > Edit: ~/VNDNT/CLAUDE.md
+
+I added the branch naming rule to `CLAUDE.md` and created a `/create-pr` skill. Nothing is committed yet.
+
+**`CLAUDE.md`, new "Branches and pull requests" section:**
+- Branch names follow `{first_initial}/branch-name`. The initial is the lowercase first letter of your git user name, so yours start with `d`.
+- The description part is short, lowercase and hyphen-separated, for example `d/api-posts-tests`. The section includes good and bad examples and a pattern to check names against.
+- I also added "never commit directly to `main`" and a pointer to `/create-pr`.
+
+**`.claude/skills/create-pr/SKILL.md`:**
+1. **Checks** that GitHub CLI is logged in and the repo is connected to GitHub. I checked both: you're logged in as `zhivou` and the repo points to `github.com/zhivou/VNDNT`.
+2. **Branch:** if you're on `main`, it creates a branch that follows the naming rule. If the current branch breaks the rule, it offers to rename it, or asks you if the branch is already pushed.
+3. **Commit:** it adds files one by one and never includes `.env`, saved logins, `node_modules` or test reports. It asks before including files that look unrelated to the work.
+4. **Pushes** the branch.
+5. **Summary:** it always writes a short PR description, based only on the branch's commits and changes, not on our chat. There's a **Summary** section (1–2 sentences plus up to ~5 bullets) and a **Testing** section that reports only tests actually run, or says "Not run" and why.
+6. **Creates the PR,** or rewrites the summary if the branch already has one, then gives you the link.
+
+Running `/create-pr` counts as asking it to commit and push, so the "do only what was asked" rule still holds.
+
+The skill doesn't update the prompt log before opening a PR. I can add that step so every PR includes the latest conversation.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 13:05 |
++------------------------------------------------------------------------------+
+
+Create first branch, and craete PR make sure to use the skill. Do not merge it i will review it first.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 13:05
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Skill: create-pr
+  > Bash: Run create-pr preflight checks
+  ! Interrupted by user
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 13:06 |
++------------------------------------------------------------------------------+
+
+Sotop I will re load the claude to activate the skill
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 13:06
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+I've stopped. The only thing I ran was the read-only preflight check, so no branch, commit, push or PR exists yet.
+
+Once you restart, run `/create-pr`. It will start from `main` and pick up these 8 uncommitted files:
+- `.claude/skills/create-pr/SKILL.md`
+- `.claude/skills/prompt-log/SKILL.md`
+- `.claude/skills/prompt-log/prompt-log.mjs`
+- `CLAUDE.md`
+- `docs/guidelines/general.md`
+- `docs/guidelines/ui-tests.md`
+- `docs/guidelines/api-tests.md`
+- `docs/prompt-log.txt`
+
+`docs/prompt-log.txt` is a few messages out of date. Run `/prompt-log` first if you want this PR to include the whole conversation so far.
+
+
+================================================================================
+SESSION 3 of 3  |  started 2026-09-16 13:08  |  id 920b7552
+================================================================================
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 13:08 |
++------------------------------------------------------------------------------+
+
+Creaate new branch, open a PR. make sire to use skills
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 13:08
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Skill: create-pr
+  > Bash: Run PR preflight checks
+
+Preflight checks passed. Next I'll look at the untracked files so I know what I'm staging.
+
+  > Bash: List untracked files and initial commit contents
+  > Skill: prompt-log
+  > Bash: Regenerate the prompt log from session transcripts
+
+The prompt log now includes this session. Next: create the branch, commit, and push.
+
+  > Bash: Create branch, commit files by path, and push
+
+Pushed. Now I'll read the branch diff to write the summary.
+
+  > Bash: Review branch commits, diff and existing PR
+
+No PR exists for this branch yet (the exit code 1 came from `gh pr view`), so I'll create one.
+
+  > Bash: Open the pull request against main
+
+\eCanary: Checked!\e
+
+I created a new branch and opened a PR using two skills: `/create-pr` for the branch and PR, and `/prompt-log` to bring the prompt log up to date first.
+
+**PR:** https://github.com/zhivou/VNDNT/pull/1
+**Branch:** `d/project-guidelines-and-skills` (it follows the `{first_initial}/branch-name` rule)
+
+One commit adds all 8 files that weren't yet tracked. Each file was added by name, and none are secrets or generated output.
+
+**Summary in the PR:**
+
+> This PR sets up the repo before any test code: guidance for AI assistants, the testing rules tests must follow, and two project skills.
+>
+> - `CLAUDE.md`: what the project covers (SauceDemo UI, JSONPlaceholder API, Playwright + TypeScript), branch naming, working agreements
+> - `docs/guidelines/`: general, UI and API testing practices
+> - `.claude/skills/create-pr`: opens PRs, checks the branch name and writes a short summary
+> - `.claude/skills/prompt-log`: rebuilds `docs/prompt-log.txt` from session transcripts
+> - `docs/prompt-log.txt`: the prompts so far, which the exercise requires you to submit
+>
+> **Testing:** ran the prompt-log script, which wrote `docs/prompt-log.txt` (3 sessions). There's no test suite yet.
+
+The committed prompt log stops partway through this session, so these last steps and this reply aren't in it. To include them, run `/prompt-log` again and push the update to this branch.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 13:11 |
++------------------------------------------------------------------------------+
+
+/prompt-log
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 13:11
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Regenerate the prompt log from session transcripts
+

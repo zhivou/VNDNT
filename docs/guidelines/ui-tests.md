@@ -245,7 +245,7 @@ export class LoginPage {
 
 ## 9. Browsers, viewports and visual checks
 
-- Choose browser coverage on purpose: run the full suite on Chromium and a smoke set on Firefox and WebKit, or everything everywhere if the suite is fast enough. Use `projects` and `devices['Pixel 7']`-style presets for mobile emulation.
+- Choose browser coverage on purpose: run the full suite on every browser you support, or only on Chromium if the product doesn't need more. Use `projects` and `devices['Pixel 7']`-style presets for mobile emulation.
 - Visual comparisons (`toHaveScreenshot`) are powerful but brittle. Mask dynamic content (`mask: [...]`), generate baselines in the same OS and browser as CI (for example with the Playwright Docker image) and use them only where layout really matters.
 
 ## 10. Accessibility

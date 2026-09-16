@@ -37,7 +37,7 @@ The repo holds two self-contained Playwright suites, one per service, each in it
 │   ├── ui/                        SauceDemo, Chromium only
 │   │   ├── .auth/                 saved sessions, one <username>.json per user. Only its .gitignore is committed
 │   │   ├── components/            UI that repeats across pages (header, product card, cart row)
-│   │   ├── data-models/           types, the site's fixed data, builders
+│   │   ├── data-models/           types, oracles (*.oracle.ts: the data the site is meant to show), builders
 │   │   ├── fixtures/              pages.fixture.ts: page objects as fixtures, re-exports expect
 │   │   ├── pages/                 page objects: locators and user-level actions
 │   │   ├── setup/                 *.setup.ts for the setup projects (precondition, auth)
@@ -83,6 +83,7 @@ The repo holds two self-contained Playwright suites, one per service, each in it
 - **Apps never import from each other.** Nothing in `apps/ui` imports `@api/*`, and nothing in `apps/api` imports `@ui/*`. If both apps ever need the same helper, add a root `shared/` folder at that point.
 - Import within an app through its alias (`@ui/...`, `@api/...`). App config files use relative imports.
 - Specs import `test` and `expect` from their app's fixture file, not from `@playwright/test`.
+- Don't tag tests (`{ tag: '@smoke' }`). To run part of a suite, pick an app, a project or a spec file.
 - Read environment variables only through the app's `utils/env.ts`, and add every new variable to `.env.example`.
 - Layers within an app. Imports only go down this table:
 
@@ -96,7 +97,17 @@ The repo holds two self-contained Playwright suites, one per service, each in it
   | `data-models/` | `utils/` | Playwright imports, shared mutable state |
   | `utils/` | nothing else in the app | Knowledge of a specific page or endpoint |
 
-- File names are kebab-case with a role suffix: `*.page.ts` (`InventoryPage`), `*.component.ts` (`HeaderComponent`), `*.api.ts` (`PostsApi`), `*.fixture.ts`, `*.model.ts` (`postSchema`, `type Post`), `*.builder.ts` (`buildNewPost()`), `*.setup.ts` (setup projects only, always in `setup/`), `*.spec.ts` (test projects only). Files in `utils/` have no suffix (`env.ts`, `auth.ts`).
+- File names are kebab-case with a role suffix: `*.page.ts` (`InventoryPage`), `*.component.ts` (`HeaderComponent`), `*.api.ts` (`PostsApi`), `*.fixture.ts`, `*.model.ts` (`postSchema`, `type Post`), `*.builder.ts` (`buildNewPost()`), `*.oracle.ts` (`PRODUCTS`, the expected data for a UI feature, always in `data-models/`), `*.setup.ts` (setup projects only, always in `setup/`), `*.spec.ts` (test projects only). Files in `utils/` have no suffix (`env.ts`, `auth.ts`).
+
+### Expected data: synthetic oracles
+
+UI tests treat SauceDemo's data as synthetic: they're written as if the test automation had seeded the store, so every expected value is known before the test runs and never read from the page.
+
+- A feature's expected data lives in an oracle, `apps/ui/data-models/<feature>.oracle.ts`. For example, `product-catalog.oracle.ts` holds every product's id, name, description, price and image, and the order each sort option gives.
+- Write what the store is **meant** to show. SauceDemo plants mistakes on purpose for testers to find (typos, wrong prices or images, broken sorting or buttons for some users). Never copy a value from the site into an oracle without checking that it's right, and never write an expected value that matches a mistake.
+- Derive expected results from the oracle's data and rules, for example sort orders from sorting the oracle's products, instead of lists copied from the page.
+- Match only what the store controls. For example, the build adds a hash to image file names, so match the stable part of the name.
+- When the site differs from an oracle, the test fails, and that failure is the finding. Don't make it pass by editing the oracle, loosening the assertion, or marking the test `test.fixme()`, `test.fail()` or `test.skip()`. Record the finding in the notes of the feature's plan in `specs/`.
 
 ### Adding code
 
@@ -119,7 +130,7 @@ UI tests are written with the official [Playwright test agents](https://playwrig
 
 - `playwright-test-planner` explores the site and saves a Markdown test plan to `specs/`.
 - `playwright-test-generator` turns a plan scenario into a spec in `apps/ui/tests/`. It can only write inside a project's `testDir`.
-- `playwright-test-healer` debugs failing tests and fixes them, or marks a test `test.fixme()` when the site itself is broken.
+- `playwright-test-healer` debugs failing tests and fixes them. A test that fails because the site differs from an oracle is a finding, not a broken test: the healer fixes only the test code (locators, steps) and leaves the oracle, the assertion and the failure alone.
 - The agents call the `playwright-test` MCP server from `.mcp.json`, which runs `npx playwright run-test-mcp-server -c apps/ui`. Without `-c apps/ui` it loads the root config and finds no tests.
 - The planner and generator start from `apps/ui/tests/seed.spec.ts`. It runs in `chromium`, so the setup projects run first and the page opens logged in as `standard_user` on the inventory page.
 - A generated spec is a draft. Before a PR, bring it in line with the rules above (fixture imports, locators and actions in page objects) and validate it like any new test.

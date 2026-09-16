@@ -51,9 +51,11 @@ The repo holds two self-contained Playwright suites, one per service, each in it
 │       ├── fixtures/              clients.fixture.ts: clients as fixtures, expect with toMatchSchema
 │       ├── setup/                 *.setup.ts for the setup project
 │       ├── tests/                 *.spec.ts
+│       │                          schema/ checks status, headers and the strict Zod response schema (not Pact contracts). functional/ checks behavior
 │       ├── utils/                 env access, custom matchers
 │       └── playwright.config.ts   extends the global config
 ├── .claude/agents/                Playwright test agents: planner, generator, healer
+├── .github/workflows/             qa-gates.yml: the API and UI QA gates, run in parallel on every pull request
 ├── artifacts/                     gitignored brainstorm pages
 ├── docs/                          guidelines and prompt log
 ├── specs/                         Markdown test plans written by the planner agent
@@ -109,7 +111,10 @@ UI tests treat SauceDemo's data as synthetic: they're written as if the test aut
 - Write what the store is **meant** to show. SauceDemo plants mistakes on purpose for testers to find (typos, wrong prices or images, broken sorting or buttons for some users). Never copy a value from the site into an oracle without checking that it's right, and never write an expected value that matches a mistake.
 - Derive expected results from the oracle's data and rules, for example sort orders from sorting the oracle's products, instead of lists copied from the page.
 - Match only what the store controls. For example, the build adds a hash to image file names, so match the stable part of the name.
-- When the site differs from an oracle, the test fails, and that failure is the finding. Don't make it pass by editing the oracle, loosening the assertion, or marking the test `test.fixme()`, `test.fail()` or `test.skip()`. Record the finding in the notes of the feature's plan in `specs/`.
+- When the site differs from an oracle, the test fails, and that failure is the finding. Never make it pass by editing the oracle or loosening the assertion, and never use `test.skip()` or `test.fail()` for it.
+- Once a finding is confirmed as a real bug, record it in the notes of the feature's plan in `specs/` and mark the test `test.fixme()`, so the QA gates stay green. Put a comment above it: `// Real bug: <what's wrong>. It needs a fix in the application, not in this test. Remove test.fixme() once it's fixed.`
+  - When only some cases of a data-driven test hit the bug, mark just those cases with `test.fixme(condition, 'Real bug: ...')` as the test's first line, so the other cases keep running.
+  - When the application is fixed, remove the `fixme` and the comment, and check the test passes.
 
 ### Adding code
 
@@ -126,13 +131,22 @@ UI tests treat SauceDemo's data as synthetic: they're written as if the test aut
 - `npx playwright test -c apps/ui --project=chromium --no-deps` skips the setup projects and `session-end` and reuses the saved sessions, for local debugging. It only works within 10 minutes of the last full run.
 - `npx playwright show-report apps/ui/playwright-report` opens an app's last report.
 
+### CI
+
+`.github/workflows/qa-gates.yml` runs on every pull request, and by hand from the Actions tab. It has two jobs, which run in parallel and report as separate checks:
+
+- **API QA Gate** runs `npm run test:api`.
+- **UI QA Gate** installs Chromium and runs `npm run test:ui`. It reads the SauceDemo password from the `SAUCE_PASSWORD` repository secret.
+
+Both set their base URLs in the workflow and upload the HTML report as an artifact, even when tests fail. On CI, `baseConfig` turns on 2 retries, `forbidOnly` and the JUnit reporter. A gate fails on any failing test. Known application bugs are marked `test.fixme()`, so a red gate means something new broke.
+
 ### Playwright test agents
 
 UI tests are written with the official [Playwright test agents](https://playwright.dev/docs/test-agents). They drive a browser, so they work on `apps/ui` only.
 
 - `playwright-test-planner` explores the site and saves a Markdown test plan to `specs/`.
 - `playwright-test-generator` turns a plan scenario into a spec in `apps/ui/tests/`. It can only write inside a project's `testDir`.
-- `playwright-test-healer` debugs failing tests and fixes them. A test that fails because the site differs from an oracle is a finding, not a broken test: the healer fixes only the test code (locators, steps) and leaves the oracle, the assertion and the failure alone.
+- `playwright-test-healer` debugs failing tests and fixes them. A test that fails because the site differs from an oracle is a finding, not a broken test: the healer fixes only the test code (locators, steps) and leaves the oracle and the assertion alone. A confirmed bug gets `test.fixme()` with a real-bug comment (see Expected data above).
 - The agents call the `playwright-test` MCP server from `.mcp.json`, which runs `npx playwright run-test-mcp-server -c apps/ui`. Without `-c apps/ui` it loads the root config and finds no tests.
 - The planner and generator start from `apps/ui/tests/seed.spec.ts`. It runs in `chromium`, so the setup projects run first and the page opens logged in as `standard_user` on the inventory page.
 - A generated spec is a draft. Before a PR, bring it in line with the rules above (fixture imports, locators and actions in page objects) and validate it like any new test.

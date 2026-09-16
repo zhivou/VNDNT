@@ -6,7 +6,7 @@ SauceDemo (https://www.saucedemo.com) product catalog: the inventory page (`/inv
 
 All scenarios run **logged in as standard_user**, start with an **empty cart**, and start on `/inventory.html` unless a scenario says otherwise. Adding products to the cart and removing them is planned in `specs/cart.md`.
 
-**Synthetic data.** The catalog is treated as data the test automation seeded, so the expected values below are what the store is **meant** to show, not whatever the site renders. SauceDemo plants mistakes on purpose, so no observed value is copied into an expected result without checking it. When the site differs, the test fails and the difference is a finding (see Notes). The tests read these values from the oracle, `apps/ui/data-models/product-catalog.oracle.ts`.
+**Synthetic data.** The catalog is treated as data the test automation seeded, so the expected values below are what the store is **meant** to show, not whatever the site renders. SauceDemo plants mistakes on purpose, so no observed value is copied into an expected result without checking it. When the site differs, the test fails and the difference is a finding (see Notes). A test that found a real bug is marked `test.fixme()` until the application is fixed. The tests read these values from the oracle, `apps/ui/data-models/product-catalog.oracle.ts`.
 
 **Products (intended data), in the default order, Name (A to Z):**
 
@@ -112,7 +112,7 @@ Every image's alt text is the product name.
 
 Observations from exploring the app. They are not test scenarios.
 
-- **Finding, standard_user:** Sauce Labs Onesie's description reads "two-needle hemmed **sleeved** and bottom won't unravel" on both the list and the details page. The intended text is "sleeves", so 1.1 and 3.1 fail on it.
+- **Finding, standard_user:** Sauce Labs Onesie's description reads "two-needle hemmed **sleeved** and bottom won't unravel" on both the list and the details page. The intended text is "sleeves", so 1.1 and the Sauce Labs Onesie case of 3.1 are marked `test.fixme()`.
 - `/inventory-item.html?id=999` shows a joke "ITEM NOT FOUND" product with the price "$√-1" and a working "Add to cart" button. There's no agreed behavior for an unknown product, so it has no scenario, but offering a product that doesn't exist for sale looks like a bug.
 - The header cart link's accessible name reads "Cart, 1 items" (not "1 item"). Scenarios check the visible badge instead.
 - The chosen sort goes back to Name (A to Z) after a reload, or after opening a product and clicking "Back to products". Nothing says whether the sort should persist, so there's no scenario for either behavior.

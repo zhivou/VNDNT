@@ -12,7 +12,7 @@ Moving between the pages is a client-side navigation, so the URL changes before 
 
 All scenarios run **logged in as standard_user**. Logged-out visitors are sent to the login page from every checkout page, which `specs/auth.md` section 5 covers.
 
-**Synthetic data.** The store is treated as data the test automation seeded, so expected results describe what checkout is **meant** to do, not whatever the site does. Products and prices come from the catalog oracle, `apps/ui/data-models/product-catalog.oracle.ts`, and the checkout texts, errors and incomplete-information cases from the checkout oracle, `apps/ui/data-models/checkout.oracle.ts`. When the site differs, the test fails and the difference is a finding (see Notes).
+**Synthetic data.** The store is treated as data the test automation seeded, so expected results describe what checkout is **meant** to do, not whatever the site does. Products and prices come from the catalog oracle, `apps/ui/data-models/product-catalog.oracle.ts`, and the checkout texts, errors and incomplete-information cases from the checkout oracle, `apps/ui/data-models/checkout.oracle.ts`. When the site differs, the test fails and the difference is a finding (see Notes). A test that found a real bug is marked `test.fixme()` until the application is fixed.
 
 **Starting state.** The cart lives only in localStorage (see `specs/cart.md`), so scenarios start with it filled by the `fillCart` fixture. With products in the cart, a scenario may open `/checkout-step-one.html` directly, because that's where checkout starts. The buyer is Ada Lovelace, postal code 10001.
 
@@ -219,9 +219,9 @@ Typing a checkout page's URL into the address bar must not skip a step: the secu
 
 Observations from exploring the app. They are not test scenarios.
 
-- **Finding:** Sauce Labs Onesie's description reads "hemmed **sleeved**" instead of "sleeves" on the overview too, so 2.1 fails on it.
-- **Finding:** First Name, Last Name and Zip/Postal Code each accept a value of only spaces and continue to the overview, so the three "only spaces" rows of 3.1 fail.
-- **Finding:** every checkout page opens by its URL, whatever state the cart and checkout are in, so 4.1 to 4.6 all fail:
+- **Finding:** Sauce Labs Onesie's description reads "hemmed **sleeved**" instead of "sleeves" on the overview too, so 2.1 is marked `test.fixme()`.
+- **Finding:** First Name, Last Name and Zip/Postal Code each accept a value of only spaces and continue to the overview, so the three "only spaces" rows of 3.1 are marked `test.fixme()`.
+- **Finding:** every checkout page opens by its URL, whatever state the cart and checkout are in, so 4.1 to 4.6 are marked `test.fixme()`:
   - Your Information opens with an empty cart and lets the buyer continue.
   - The overview opens with an empty cart ("Item total: $0", without cents, next to "Tax: $0.00" and "Total: $0.00"), and "Finish" then confirms an order of nothing.
   - The overview opens with a filled cart, skipping the information step (also noted in `specs/cart.md`).

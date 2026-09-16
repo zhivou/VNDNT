@@ -8,7 +8,7 @@ build this project, all sessions, in chronological order.
   AI blocks    (dashed border)  the replies; "  > Tool: ..." lines are actions
                                 the AI took (reading files, running commands, edits)
 
-Last generated: 2026-09-16 18:26
+Last generated: 2026-09-16 18:35
 
 
 ================================================================================
@@ -1923,6 +1923,123 @@ nice all look good, commit this
   > Bash: Show status and the CLAUDE.md diff
   > Bash: Refresh prompt log and review UI diffs
 
+Everything outside CLAUDE.md is mine. I'll stage by path, then stage CLAUDE.md without its first hunk.
+
+  > Bash: Stage checkout and session-end work, partial CLAUDE.md
+
+The staged diff has 15 files, no password, and none of the API or create-pr work. Committing:
+
+  > Bash: Commit the checkout and session-end work
+
+\eCanary: Checked!\e
+
+I committed the work as `1cf4a0e` on `d/ui-test-coverage`. Nothing is pushed yet.
+
+The commit has 15 files:
+- **Checkout tests:** the new tests with their oracle, plan and page objects.
+- **Session-ending tests:** the logout and expired-session tests, moved out of `auth.spec.ts` into `session-end.spec.ts`, plus the config change that runs them last.
+- **Docs:** CLAUDE.md, the updated auth and cart plans, and a refreshed prompt log.
+
+None of it contains the password, `.env`, saved sessions or test output.
+
+I didn't commit the other uncommitted work in the repo:
+- **CLAUDE.md:** the `contract/` line stays uncommitted. I committed only my edits to that file.
+- **API work:** the new clients, models and builders, the `contract/` and `functional/` test folders, and the deleted `posts.spec.ts`.
+- **`create-pr` skill:** its edits.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 18:28 |
++------------------------------------------------------------------------------+
+
+Now let's add ci runner, simple runner that runs both QA Gates APi and UI are 2 separate PR QA Gate so run in parrallel. Also markf failign test as fixme with a comment that htis is a real bug and needs to be fix on the application level.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 18:29
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+I'll start by reading the pieces this touches: scripts and Node version, the base config's CI settings, env loading, lint rules for `fixme`, and the README.
+
+  > Bash: Read scripts, configs, lint rules, env and README
+  > Bash: Read catalog spec and the no-skipped-test rule
+  > Bash: Read rule logic and catalog details tests
+  > Bash: Check action versions, node, yaml parser, repo secrets
+
+The `SAUCE_PASSWORD` repo secret already exists, so the UI gate can read it. The actions are at v7. Next I'll skim the v7 release notes for breaking changes.
+
+  > Bash: Read major release notes for the three actions
+
+Nothing breaking for this use. Now the workflow:
+
+  > Write: ~/VNDNT/.github/workflows/qa-gates.yml
+  > Bash: Mark finding tests as fixme with real-bug comments
+
+Typecheck and lint pass. Four of the new comment lines are over 120 characters; the long lines in `product-catalog.oracle.ts` were already there and are product descriptions. I'll rewrap the four.
+
+  > Bash: Show the long lines in context
+  > Bash: Rewrap the long comment lines
+  > Bash: Simulate the API gate on a clean checkout of HEAD
+  > Bash: Simulate the UI gate with CI settings
+  > Bash: Parse the workflow YAML
+  > Bash: Find docs describing failing finding tests
+  > Bash: Locate tree line and section headings in CLAUDE.md
+  > Bash: Update docs and plans for fixme and CI
+  > Bash: Check lockfile, CLAUDE.md diff, refresh prompt log
+
+\eCanary: Checked!\e
+
+I added a CI workflow with two QA gates that run in parallel, and marked the 17 tests that catch real bugs as `test.fixme()`. Both gates pass when I simulate them locally; the workflow itself hasn't run on GitHub yet.
+
+## CI: `.github/workflows/qa-gates.yml`
+- **Two checks:** "API QA Gate" and "UI QA Gate" run as separate jobs, in parallel, on every pull request. You can also start them by hand from the Actions tab.
+- **Each job:** installs dependencies (the UI job also installs Chromium), runs `npm run test:api` or `npm run test:ui`, and uploads the HTML report even when tests fail.
+- **Password:** the UI gate reads it from the `SAUCE_PASSWORD` repository secret, which already exists. The base URLs are set in the workflow.
+- **Repeat pushes:** a new push to the same PR cancels the run still going for the old commit.
+
+To block merging on a red gate, make both checks required in the branch protection settings for `main`.
+
+## Tests marked `fixme`
+Each marked test has a comment above it: `// Real bug: <what's wrong>. It needs a fix in the application, not in this test. Remove test.fixme() once it's fixed.`
+
+- **Whole tests or groups:**
+  - the Onesie typo, in the product list, cart page and checkout overview tests
+  - Checkout enabled with an empty cart
+  - both Reset App State tests
+  - all 6 direct-URL checkout tests
+- **Only the failing case of a data-driven test:**
+  - the Onesie details page, while the other 5 products still run
+  - the 4-product cart's unrounded total, while the other 5 carts still run
+  - the 3 blank-field checks, which now have their own list in the checkout oracle so the missing-field checks keep running
+
+**Trade-off:** the three "every product" tests are marked as a whole because of the Onesie typo. Until that's fixed, they don't check the other 5 products on the list, cart page or overview.
+
+I updated CLAUDE.md, the README and the three plans: known bugs are now marked `fixme` instead of left failing, and there's a short CI section.
+
+## Checks
+- **Lint and typecheck:** pass.
+- **UI gate** (with `CI=1`, so retries and the CI reporters are on): 90 passed, 17 skipped as `fixme`, 0 failed.
+- **API gate** (on a clean copy of the last commit with no `.env`, like the CI runner): 2 passed.
+- **Workflow file:** parses as valid YAML.
+
+Nothing is committed or pushed, and the prompt log is updated. Want me to commit this?
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 18:35 |
++------------------------------------------------------------------------------+
+
+YEs commit everythign including API cganges done in a sepaerate sessions, i allready ran prompt log for api so it is all in, add prompt log from thsi session and create a PR
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 18:35
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+I'll refresh the prompt log for this session first. Then, since the API work from the other session is going in too, I'll run lint, typecheck and the API suite on the full working tree.
+
+  > Bash: Refresh prompt log, lint, typecheck, run API tests
+
 
 ================================================================================
 SESSION 4 of 4  |  started 2026-09-16 16:55  |  id 3dbf697c
@@ -2280,4 +2397,54 @@ Each behavior is one table of cases that runs as separate tests per resource, th
 - **Error details:** both 500 errors send back the server's internal error details. A real API would treat that as a bug too.
 
 The prompt log is refreshed and nothing was removed. Your earlier "not Pact" line in CLAUDE.md is still there after the other session's edits.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 18:31 |
++------------------------------------------------------------------------------+
+
+i still see contract fodler name it musth be schema not contract
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 18:31
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Find every mention of contract in API code and docs
+  > Bash: Rename contract folder and wording to schema
+  > Read: ~/VNDNT/CLAUDE.md
+
+The grep failed on zsh globbing, but the rename and the edits before it ran. I'll verify the state.
+
+  > Bash: Verify rename and remaining contract mentions
+  > Edit: ~/VNDNT/CLAUDE.md
+  > Bash: Typecheck, lint, compare test list, run API tests, refresh log
+
+The folder is now `apps/api/tests/schema/`, and no API code says "contract" any more. All 117 API tests still pass.
+
+- **Folder:** `tests/contract/` was renamed to `tests/schema/`, with the same six files per resource.
+- **Test names:** the describe block `contract` is now `schema`, and "... in the contract shape" is now "... matching the schema". Otherwise the report would still show "contract". Comparing the test lists before and after, only those names changed; the count is still 117.
+- **Comments and data:** the model comments now say "fails the schema check". The builders' body text is now "Created by the API tests.", because the functional tests use those builders too.
+- **CLAUDE.md:** the line now reads "schema/ checks status, headers and the strict Zod response schema (not Pact contracts). functional/ checks behavior".
+- **Left as is:** `docs/guidelines/api-tests.md` still uses "contract" in the general sense, as in "when the contract defines it".
+
+Typecheck and lint pass, and no file still points at `contract/`. The prompt log is refreshed and nothing was removed. Nothing is committed.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 18:34 |
++------------------------------------------------------------------------------+
+
+/prompt-log
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 18:34
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Regenerate prompt log and confirm nothing was removed
+
+I updated `docs/prompt-log.txt`, and nothing was erased. It holds 60 prompts across 4 sessions. The count didn't change since my last refresh because the other session added its new prompts in the meantime. This reply isn't in the log yet; the next run will add it. Nothing is committed.
+
+One conflict to know about: the other session just added a rule to CLAUDE.md that known application bugs are marked `test.fixme()`. The API bugs in `known-bugs.spec.ts` use `test.fail()`, as you asked. Both keep the QA gates green. But `test.fixme()` skips the test, while `test.fail()` still runs it and alerts you once the bug is fixed. You may want one convention for both apps.
 

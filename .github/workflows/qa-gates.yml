@@ -1,0 +1,78 @@
+# PR QA gates: the API and UI suites run as two separate checks, in parallel.
+# Each job can be made a required status check on main.
+name: QA Gates
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A new push to the same pull request cancels the run still going for the old commit
+concurrency:
+  group: qa-gates-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api:
+    name: API QA Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      API_BASE_URL: https://jsonplaceholder.typicode.com
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run API tests
+        run: npm run test:api
+
+      - name: Upload report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: api-playwright-report
+          path: apps/api/playwright-report/
+          retention-days: 14
+
+  ui:
+    name: UI QA Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      UI_BASE_URL: https://www.saucedemo.com
+      # Repository secret. Never write the password into the repo.
+      SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Run UI tests
+        run: npm run test:ui
+
+      # The report includes the traces recorded when a test is retried
+      - name: Upload report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-playwright-report
+          path: apps/ui/playwright-report/
+          retention-days: 14

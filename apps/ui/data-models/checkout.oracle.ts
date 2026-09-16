@@ -32,8 +32,7 @@ type IncompleteInformation = {
 };
 
 // Information the first checkout step refuses, and the error each one shows: the first missing field, top to bottom.
-// A field of only spaces is as empty as a field left blank.
-export const INCOMPLETE_INFORMATION: IncompleteInformation[] = [
+export const MISSING_INFORMATION: IncompleteInformation[] = [
   {
     description: 'an empty form',
     buyer: { firstName: '', lastName: '', postalCode: '' },
@@ -42,6 +41,10 @@ export const INCOMPLETE_INFORMATION: IncompleteInformation[] = [
   { description: 'a missing first name', buyer: { ...BUYER, firstName: '' }, error: INFORMATION_ERRORS.firstName },
   { description: 'a missing last name', buyer: { ...BUYER, lastName: '' }, error: INFORMATION_ERRORS.lastName },
   { description: 'a missing postal code', buyer: { ...BUYER, postalCode: '' }, error: INFORMATION_ERRORS.postalCode },
+];
+
+// A field of only spaces is as empty as a field left blank, so it's refused the same way
+export const BLANK_INFORMATION: IncompleteInformation[] = [
   {
     description: 'a first name of only spaces',
     buyer: { ...BUYER, firstName: '   ' },

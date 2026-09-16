@@ -6,7 +6,7 @@ SauceDemo (https://www.saucedemo.com) shopping cart: products go into the cart f
 
 All scenarios run **logged in as standard_user** and start with an **empty cart** unless a scenario says otherwise.
 
-**Synthetic data.** The store is treated as data the test automation seeded, so expected results describe what the cart is **meant** to do, not whatever the site does. Products and prices come from the catalog oracle, `apps/ui/data-models/product-catalog.oracle.ts` (see `specs/product-catalog.md`). When the site differs, the test fails and the difference is a finding (see Notes).
+**Synthetic data.** The store is treated as data the test automation seeded, so expected results describe what the cart is **meant** to do, not whatever the site does. Products and prices come from the catalog oracle, `apps/ui/data-models/product-catalog.oracle.ts` (see `specs/product-catalog.md`). When the site differs, the test fails and the difference is a finding (see Notes). A test that found a real bug is marked `test.fixme()` until the application is fixed.
 
 **Cart state.** The cart lives only in localStorage: `cart-contents` is a JSON array of product ids in the order they were added, for example `[4,0,2]`. Scenarios that need products in the cart start with it filled this way (the `fillCart` fixture) instead of clicking "Add to cart", unless adding or removing is what the scenario checks.
 
@@ -252,11 +252,11 @@ All scenarios run **logged in as standard_user** and start with an **empty cart*
 
 Observations from exploring the app. They are not test scenarios.
 
-- **Finding:** Sauce Labs Onesie's description reads "hemmed **sleeved**" instead of "sleeves" on the cart page too, so 2.2 fails on it.
-- **Finding:** "Checkout" is enabled with an empty cart and opens `/checkout-step-one.html`, so 4.4 fails.
-- **Finding:** the item total isn't rounded to cents for some carts, so floating-point noise shows up. The 4-product cart shows "Item total: $105.96000000000001" (6.1 fails). Checking all 63 possible carts found 6 like this: Bike Light + Fleece Jacket ($59.980000000000004), Fleece Jacket + Onesie ($57.980000000000004), and four carts of 4 or 5 products. Tax and Total were right in all 63.
+- **Finding:** Sauce Labs Onesie's description reads "hemmed **sleeved**" instead of "sleeves" on the cart page too, so 2.2 is marked `test.fixme()`.
+- **Finding:** "Checkout" is enabled with an empty cart and opens `/checkout-step-one.html`, so 4.4 is marked `test.fixme()`.
+- **Finding:** the item total isn't rounded to cents for some carts, so floating-point noise shows up. The 4-product cart shows "Item total: $105.96000000000001", so that case of 6.1 is marked `test.fixme()`. Checking all 63 possible carts found 6 like this: Bike Light + Fleece Jacket ($59.980000000000004), Fleece Jacket + Onesie ($57.980000000000004), and four carts of 4 or 5 products. Tax and Total were right in all 63.
 - The checkout overview opens directly at `/checkout-step-two.html` with a filled cart, skipping the name and postal code step. That's a finding in `specs/checkout.md` 4.4, so the totals scenarios go through that step instead of relying on the shortcut.
-- **Finding:** "Reset App State" clears the cart data and the badge right away, but the "Remove" buttons on the list and the rows on the cart page stay until the page reloads, so 5.1 and 5.2 fail.
+- **Finding:** "Reset App State" clears the cart data and the badge right away, but the "Remove" buttons on the list and the rows on the cart page stay until the page reloads, so 5.1 and 5.2 are marked `test.fixme()`.
 - The cart survives logging out and back in, because it lives in the browser's localStorage and not with the user. Whether a cart should outlive a logout (or carry over to another user in the same browser) isn't defined, so there's no scenario.
 - A `cart-contents` id with no product (for example `[99]`) counts in the badge but shows no row, and a repeated id (`[4,4]`) shows two rows of the same product. Neither can happen through the UI, so neither has a scenario.
 - The header cart link's accessible name reads "Cart, 1 items" (not "1 item"). Scenarios check the visible badge instead.

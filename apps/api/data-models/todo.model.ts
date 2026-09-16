@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
 // Strict: an unexpected extra field fails the schema check.
-export const postSchema = z.strictObject({
+export const todoSchema = z.strictObject({
   userId: z.number().int().positive(),
   id: z.number().int().positive(),
   title: z.string(),
-  body: z.string(),
+  completed: z.boolean(),
 });
 
-export type Post = z.infer<typeof postSchema>;
-export type NewPost = Omit<Post, 'id'>;
+export type Todo = z.infer<typeof todoSchema>;
+export type NewTodo = Omit<Todo, 'id'>;

@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Local environment
+.env
+
+# Playwright output (any depth, one set per app)
+.auth/
+test-results/
+playwright-report/
+blob-report/
+
+# Brainstorm artifact sources, kept out of the reviewed repo
+artifacts/

@@ -1,0 +1,24 @@
+{
+  "name": "vndnt",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright test framework: SauceDemo UI tests and JSONPlaceholder API tests",
+  "scripts": {
+    "test": "npm run test:api && npm run test:ui",
+    "test:ui": "playwright test -c apps/ui",
+    "test:api": "playwright test -c apps/api",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^22.20.3",
+    "dotenv": "^17.4.2",
+    "eslint": "^10.10.0",
+    "eslint-plugin-playwright": "^2.12.0",
+    "typescript": "~6.0",
+    "typescript-eslint": "^8.70.0",
+    "zod": "^4.6.5"
+  }
+}

@@ -8,7 +8,7 @@ build this project, all sessions, in chronological order.
   AI blocks    (dashed border)  the replies; "  > Tool: ..." lines are actions
                                 the AI took (reading files, running commands, edits)
 
-Last generated: 2026-09-16 15:02
+Last generated: 2026-09-16 16:24
 
 
 ================================================================================
@@ -768,4 +768,561 @@ Ok this looks good, create PR and record session logs
 
   > Skill: prompt-log
   > Bash: Regenerate the prompt log from session transcripts
+
+The prompt log is updated. Now I'll open the PR.
+
+  > Skill: create-pr
+  > Bash: Run PR preflight and confirm ignored files
+  > Bash: Check the prompt log for the demo password
+
+The password isn't in the log either. Committing the files by path:
+
+  > Bash: Stage files by path, commit and push
+
+Pushed. Before writing the summary I'll rerun the tests, lint and typecheck on the committed state, so the Testing section reports current results.
+
+  > Bash: Rerun tests, lint, typecheck and check for an existing PR
+  > Bash: Open the pull request against main
+
+\eCanary: Checked!\e
+
+I updated the session log and opened the PR. Before writing the summary I reran the tests, lint and typecheck on the committed code, and all passed.
+
+**PR:** https://github.com/zhivou/VNDNT/pull/2
+**Branch:** `d/playwright-framework-setup`
+
+One commit adds 27 files, each added by name. `docs/prompt-log.txt` in the commit includes all conversation up to this PR. `.env`, `artifacts/`, `apps/ui/.auth/`, the test output folders and `node_modules/` are gitignored and not in the commit.
+
+**Summary in the PR:**
+
+> This PR sets up the framework as two self-contained Playwright apps, SauceDemo UI in `apps/ui` and JSONPlaceholder API in `apps/api`. Each has a hello-world smoke test, and the layout is documented in `CLAUDE.md`.
+>
+> - The root `playwright.config.ts` holds the shared `baseConfig`, loads `.env` and runs no tests itself.
+> - Each app config extends it with `defineConfig(baseConfig, …)`.
+> - `apps/ui` runs in Chromium only. Its `setup` logs in once, and it has login and inventory page objects.
+> - `apps/api` has a `setup` health check, a `PostsApi` client, a Zod schema and a `toMatchSchema` matcher.
+> - Tooling: strict TypeScript with aliases, ESLint, `.env.example`, `.gitignore`, npm scripts.
+>
+> **Testing:** `npm test` passes (API 2, UI 2). Each app passed 10 repeats and failed when broken on purpose. Lint and typecheck are clean. Running from the root reports "No tests found".
+
+**One gap:** you changed `SAUCE_PASSWORD` in `.env.example` to `add-here`. `CLAUDE.md` still gives the first-run steps as just `cp .env.example .env`, so a fresh clone would try to log in with `add-here` and fail setup. The fix is to add "set `SAUCE_PASSWORD` in `.env`" to those steps, and I can push it to this PR. Your local `.env` still has the real password, which is why the tests pass here.
+
+The prompt log in the PR doesn't include this final reply. Run `/prompt-log` again at the end of the session.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 15:07 |
++------------------------------------------------------------------------------+
+
+Crate new Branch pull main latest, we will start working on UI test coverage
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 15:07
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Check working tree and PR #2 merge state
+  > Bash: Update main and create the UI coverage branch
+
+\eCanary: Checked!\e
+
+I pulled the latest `main` and created `d/ui-test-coverage` from it. The branch has no changes yet and exists only on your machine until the first `/create-pr`.
+
+- **`main`:** PR #2 was already merged, so pulling fast-forwarded `main` to `507c133` with the framework skeleton.
+- **Dependencies:** `package.json` matches what's installed locally, so there's nothing to reinstall.
+
+For UI coverage, a good first step would be a coverage brainstorm in `artifacts/`, like the layout one. It would list the SauceDemo areas (login, inventory and sorting, product details, cart, checkout, side menu, the special user accounts) and the test cases for each. It would also cover the open cart-setup question: add items by writing to browser storage or by clicking "Add to cart". Or, if you'd rather go straight to code, tell me which area to start with.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 15:08 |
++------------------------------------------------------------------------------+
+
+/compact
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 15:08 |
++------------------------------------------------------------------------------+
+
+/compact
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 15:14 |
++------------------------------------------------------------------------------+
+
+First add setup files. lets add 2 separate:  precondition andauth files. Make sure we follow file naming covention. For the precondtion lets add response.ok() check for the base url this file will later host more init check if neeeded. And auth must inlclude all the users lgins and save all thereo storage sessions so we can later reuse them for the main test project. Use ui as this project doesn really have api it uses state to controle the sahre of the app. Add createStorageStateUI to the util folder uder auth.utils.ts or simialr you can suggest best naming.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 15:15 |
++------------------------------------------------------------------------------+
+
+First add setup files. lets add 2 separate:  precondition andauth files. Make sure we follow file naming covention. For the precondtion lets add response.ok() check for the base url this file will later host more init check if neeeded. And auth must inlclude all the users lgins and save all thereo storage sessions so we can later reuse them for the main test project. Use ui as this project doesn really have api it uses state to controle the sahre of the app. Add createStorageStateUI to the util folder uder auth.utils.ts or simialr you can suggest best naming. Add .auth fodler also add missing gitignore and make sure it is ignored. Also pay attention that we have 2 apps so we should have .auth in both apps
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 15:17
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > AskUserQuestion
+  > Bash: Show gitignore, UI config, setup and related files
+  > Bash: Probe SauceDemo login timing and session state per user
+  > Bash: Read probe output so far
+  > Bash: Wait for probe to finish and check cleanup
+  > Bash: Rename storage-state util to auth and list auth folders
+  > Read: ~/VNDNT/.gitignore
+  > Read: ~/VNDNT/apps/ui/playwright.config.ts
+  > Read: ~/VNDNT/apps/ui/data-models/sauce-user.model.ts
+  > Read: ~/VNDNT/apps/ui/tests/auth.setup.ts
+  > Bash: Create .auth folders with their own gitignore in both apps
+  > Edit: ~/VNDNT/.gitignore
+  > Write: ~/VNDNT/apps/ui/utils/auth.ts
+  > Edit: ~/VNDNT/apps/ui/data-models/sauce-user.model.ts
+  > Write: ~/VNDNT/apps/ui/tests/auth.setup.ts
+  > Write: ~/VNDNT/apps/ui/tests/precondition.setup.ts
+  > Edit: ~/VNDNT/apps/ui/playwright.config.ts
+  > Edit: ~/VNDNT/apps/ui/playwright.config.ts
+  > Bash: Verify ignore rules, list UI tests, lint and typecheck
+  > Bash: Run UI app and inspect saved sessions and cookie lifetime
+  > Bash: Check cookie lifetime and time each step of the slow login
+  > Bash: Trace the slow login and time each browser call
+  > Bash: Run UI app against a local 503 server to see precondition fail
+  > Bash: Repeat UI run 10x, verify root ignore rule and API app still pass
+  > Bash: Repeat the precondition and auth setup tests 10 times
+
+All 60 repeated setup runs passed. Updating CLAUDE.md so it describes the new setup projects.
+
+  > Read: ~/VNDNT/CLAUDE.md
+  > Edit: ~/VNDNT/CLAUDE.md
+  > Edit: ~/VNDNT/CLAUDE.md
+  > Edit: ~/VNDNT/CLAUDE.md
+  > Edit: ~/VNDNT/CLAUDE.md
+  > Edit: ~/VNDNT/CLAUDE.md
+  > Edit: ~/VNDNT/CLAUDE.md
+  > Bash: Final lint, typecheck, UI run, status and prompt log refresh
+
+\eCanary: Checked!\e
+
+The UI app now has two setup projects, `precondition` and `auth`, that run before the specs, and both apps have a `.auth/` folder whose contents git ignores. `npm run test:ui` passed (7 tests), lint and typecheck are clean, and the API app still passes. Nothing is committed or pushed.
+
+**How the UI app runs now:** `precondition` → `auth` → `chromium`. Each project runs only if the one before it passed.
+- **`tests/precondition.setup.ts`:** checks that the base URL responds. I used `expect(response).toBeOK()`, which is Playwright's assertion for `response.ok()` and matches the API app's health check. When it fails it shows the status code, e.g. "← 503 Service Unavailable". More startup checks can go in this file later.
+- **`tests/auth.setup.ts`:** logs in each user through the login page, in parallel, and saves every session to `apps/ui/.auth/<username>.json`. That covers five users: `locked_out_user` is refused at the login form, so it has no session to save. The list is `SESSION_USERS` in `sauce-user.model.ts`.
+- **`utils/auth.ts`:** holds `createStorageStateUI` and `storageStatePath`. I renamed the old `storage-state.ts` rather than keeping two files for the same thing (the rename is staged). I didn't use `auth.utils.ts` because files in `utils/` have no role suffix (`env.ts`, `matchers.ts`), and CLAUDE.md now says so.
+
+A spec can run as another user with `test.use({ storageState: storageStatePath(SAUCE_USERS.problem) })`.
+
+**`.auth/` in both apps:** each folder has its own `.gitignore` that ignores everything except itself, so the folders stay in git. I also changed the root rule from `.auth/` to `**/.auth/*`, since the old rule hid the whole folder and those `.gitignore` files couldn't be committed. With the inner file removed, the root rule still ignores saved sessions.
+
+**Checks:**
+- **Failing precondition:** against a local server returning 503, `precondition` failed and the other 6 tests didn't run.
+- **Repeated setup:** running `precondition` and `auth` 10 times each gave 60 passed. A plain `--repeat-each` skips setup projects, so I selected them directly with `--no-deps`.
+
+**What I found on SauceDemo:**
+- **Sessions last 10 minutes.** The login cookie expires 600 seconds after it's set, which answers the question the framework-layout brainstorm had left open. A saved session only works for about 10 minutes after the run that created it. That also limits `--no-deps` debugging to about 10 minutes after a full run.
+- **`performance_glitch_user` is slow to log in.** The Login click takes about 5 seconds, which fits under our 10-second action limit.
+
+I updated CLAUDE.md to describe the three projects, both `.auth/` folders and the 10-minute limit, and refreshed `docs/prompt-log.txt`.
+
+The API app's check is still called `health.setup.ts` in a project named `setup`. I can rename it to `precondition` so both apps match.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 15:26 |
++------------------------------------------------------------------------------+
+
+setup files must be inside setup folder. Make sure you also fix the refferece in pw config
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 15:27
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Check how Playwright matches testMatch strings
+  > Bash: Move setup files into setup folders and show config and docs references
+  > Edit: ~/VNDNT/apps/ui/playwright.config.ts
+  > Edit: ~/VNDNT/apps/api/playwright.config.ts
+  > Bash: Point CLAUDE.md setup references at the setup folders
+  > Bash: List and run both apps, lint, typecheck, refresh prompt log
+
+\eCanary: Checked!\e
+
+Both apps' setup files are now in a `setup/` folder inside `tests/`, and each config points at the new paths. The UI app passes (7 tests) and the API app passes (2 tests), and lint and typecheck are clean.
+
+- **UI:** `apps/ui/tests/setup/precondition.setup.ts` and `apps/ui/tests/setup/auth.setup.ts`.
+- **API:** `apps/api/tests/setup/health.setup.ts`. You mentioned setup files in general, so I moved this one too.
+
+**Config references:**
+- The UI config now uses `testMatch: 'setup/precondition.setup.ts'` and `'setup/auth.setup.ts'`.
+- The API config now uses `testMatch: 'setup/*.setup.ts'`.
+- The old patterns matched only the file name, so a setup file outside the folder would still have run. The new paths only match inside `setup/`.
+- The specs project doesn't need to exclude the folder: Playwright's default only picks up `*.spec.ts` and `*.test.ts` files, and listing each app confirms each setup file lands in the right project.
+
+The imports use the `@ui/` and `@api/` aliases, so the moved files didn't need changes. I updated CLAUDE.md with the new paths, and it now says `*.setup.ts` files always go in `tests/setup/`.
+
+I kept the folder inside `tests/` so the app's test folder setting and the Playwright lint rules still apply. If you want a top-level `apps/ui/setup/` instead, the setup projects would each need their own test folder setting. Nothing is committed or pushed.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 15:29 |
++------------------------------------------------------------------------------+
+
+wrong again setup and test fodler msut be ont he same level
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 15:29
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Move setup folders up next to tests in both apps
+  > Edit: ~/VNDNT/apps/ui/playwright.config.ts
+  > Edit: ~/VNDNT/apps/api/playwright.config.ts
+  > Edit: ~/VNDNT/eslint.config.mjs
+  > Bash: Update CLAUDE.md layout for setup folders beside tests
+  > Read: ~/VNDNT/CLAUDE.md
+  > Edit: ~/VNDNT/CLAUDE.md
+  > Bash: List and run both apps, confirm lint rules cover setup, refresh prompt log
+  > Read: ~/VNDNT/apps/ui/playwright.config.ts
+  > Read: ~/VNDNT/apps/api/playwright.config.ts
+  > Bash: Move testDir into each project in both app configs and docs
+  > Bash: List and run both apps, lint, typecheck, refresh prompt log
+  > Bash: Check that only the specs run with project filter and no deps
+  > Bash: Fix the no-deps debugging command in CLAUDE.md
+
+\eCanary: Checked!\e
+
+Both apps now have `setup/` next to `tests/`. The UI app passes (7 tests) and the API app passes (2 tests), and lint and typecheck are clean.
+
+- **UI:** `apps/ui/setup/precondition.setup.ts` and `apps/ui/setup/auth.setup.ts`, with the spec in `apps/ui/tests/`.
+- **API:** `apps/api/setup/health.setup.ts`, with the spec in `apps/api/tests/`.
+
+**Config changes:**
+- **Where each project looks:** each project now sets its own test folder: `./setup` for the setup projects and `./tests` for `chromium` and `api`. I removed the app-wide `./tests` setting because it made reports show setup files as `../setup/auth.setup.ts`. They now show as `setup/auth.setup.ts` and `tests/inventory.spec.ts`.
+- **File matching:** the setup projects match `precondition.setup.ts` and `auth.setup.ts` (UI) and `*.setup.ts` (API).
+- **Lint:** `eslint.config.mjs` now applies the Playwright lint rules to `apps/*/setup/**` as well as `tests/`. They were only checking `tests/`.
+
+CLAUDE.md is updated with the new tree, the per-project test folder rule, `setup/` added to the layer table, and "`*.setup.ts` always in `setup/`".
+
+I also found a mistake in CLAUDE.md, left over from the last PR. It said `npx playwright test -c apps/ui --no-deps` skips login, but it still runs every project, including the logins. The command that runs only the specs on the saved sessions is `npx playwright test -c apps/ui --project=chromium --no-deps`. I checked that it runs just the 1 spec and fixed the doc.
+
+The prompt log is refreshed. Nothing is committed or pushed.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 15:34 |
++------------------------------------------------------------------------------+
+
+greate now as we have users we can start wright tests we will be using MS playwright official subagents - https://playwright.dev/docs/test-agents. Make sure we have them and all 3 registered let me know f w eneed to reset the session.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 15:34
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > ToolSearch: select:WebFetch
+  > Bash: Check existing agents, MCP config and init-agents help
+  > WebFetch: https://playwright.dev/docs/test-agents
+  > Bash: Dry-run init-agents in a scratch copy to see generated files
+  > Bash: Inspect generated MCP config, seed, and agent definitions
+  > Bash: Check test MCP server options and find init-agents source
+  > Bash: Read seed resolution and agent generation source
+  > Bash: Check how MCP tools pick config, project and seed
+  > Bash: Check how the test MCP context resolves config and runs the seed
+  > Bash: Read seed run and config resolution code
+  > Bash: Read full generated agent instructions
+
+Reading the three agent definitions so I know which folders they'll write to.
+
+  > Read: /private/tmp/claude-501/-Users-dmitriiskrylev-VNDNT/920b7552-6521-461d-a468-44e359159d7a/scratchpad/agents-probe/.cla...
+  > Read: /private/tmp/claude-501/-Users-dmitriiskrylev-VNDNT/920b7552-6521-461d-a468-44e359159d7a/scratchpad/agents-probe/.cla...
+  > Bash: Check where plans and generated tests are allowed to be written
+  > Bash: Generate Playwright test agents for Claude against the UI app
+  > Read: ~/VNDNT/.mcp.json
+  > Read: ~/VNDNT/apps/ui/tests/seed.spec.ts
+  > Write: ~/VNDNT/.mcp.json
+  > Write: ~/VNDNT/apps/ui/tests/seed.spec.ts
+  > Bash: Start the agents' MCP server and check its tools, test list and seed run
+  > Bash: Start the agents' MCP server and check its tools, test list and seed run
+  > Bash: Check for leftover server, lint, typecheck, run UI app
+  > Read: ~/VNDNT/CLAUDE.md
+  > Bash: Check whether init-agents overwrites existing files
+  > Edit: ~/VNDNT/CLAUDE.md
+  > Edit: ~/VNDNT/CLAUDE.md
+  > Edit: ~/VNDNT/CLAUDE.md
+  > Bash: Refresh prompt log and show working tree
+
+\eCanary: Checked!\e
+
+The three official agents (planner, generator, healer) are installed in `.claude/agents/`, but you do need to restart the session. This session only loads agents and MCP servers when it starts, so it can't use them yet. Their MCP server config is in place, and I tested the server directly, outside this session.
+
+**To register them:**
+1. Type `/exit`, then start `claude --continue` in the repo so you keep this conversation.
+2. When it asks about the new `playwright-test` MCP server from `.mcp.json`, approve it.
+3. Check with `/agents` (you should see the 3 agents) and `/mcp` (`playwright-test` should be connected).
+
+**What I added**, using `npx playwright init-agents --loop=claude -c apps/ui --project=chromium`:
+- **`.claude/agents/`:** the three agent definitions, as Playwright generated them.
+- **`.mcp.json`:** I made one change. As generated, it starts the server without a config, so the server loads our root config and finds no tests. I added `-c apps/ui`.
+- **`apps/ui/tests/seed.spec.ts`:** the starting point for the planner and generator. The generated version imported from `@playwright/test`, so I rewrote it to use our fixture file and open the inventory page. It runs in `chromium`, so the agents start logged in as `standard_user`.
+- **`specs/`:** at the repo root, where the planner saves its test plans. `init-agents` recreates it at the root, so I left it there.
+
+**How I checked it:** I started the server from `.mcp.json` headless and called it directly.
+- **Tools:** it provides every tool the three agents list.
+- **Test list:** it lists all 8 UI tests, including setup.
+- **Planner start:** its setup step ran the precondition and all 5 logins, then paused on `inventory.html`, logged in.
+- **Normal checks:** lint and typecheck pass, and `npm run test:ui` passes (8 tests).
+
+**Things to know:**
+- **The seed runs in `npm run test:ui`.** It's a test with no assertions (that's the 8th test), so I turned off the lint rule that wants an `expect` for that one line. I can keep it out of normal runs if you prefer.
+- **Visible browser.** The server opens a real Chrome window by default, so you can watch the agents. Adding `--headless` to `.mcp.json` turns that off.
+- **Generated specs are drafts.** The generator writes raw `page.click(...)`-style code. Before a PR, locators move into page objects and imports switch to our fixture file.
+- **Regenerating overwrites.** The Playwright docs say to regenerate the agents after upgrades. That overwrites `.mcp.json` and the agent files, so `-c apps/ui` has to be added back. The seed and `specs/` are kept.
+
+I added a "Playwright test agents" section to CLAUDE.md covering these points and refreshed the prompt log. Nothing is committed or pushed.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 15:41 |
++------------------------------------------------------------------------------+
+
+ok lets start with auth.spec.ts for UI. Make sure to use planner. Login test, locked user test, test logout, unauthorized user cannot access protected pages include any other you find.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 15:41
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > ToolSearch: +playwright-test planner
+  > Agent: Check planner agent availability
+
+\eCanary: Checked!\e
+
+I can't use the planner yet because this session hasn't been restarted since the agents were added. The Agent tool doesn't know `playwright-test-planner` (it lists only the built-in agents), and none of the `playwright-test` MCP tools are loaded. I haven't written anything.
+
+To load them:
+1. Type `/exit`, then run `claude --continue` in `~/VNDNT`.
+2. Approve the `playwright-test` MCP server when asked.
+3. Say "go" and I'll pick up this request.
+
+**Plan once it's running:**
+1. **Planner:** starts from the seed and explores SauceDemo. It saves the plan to `specs/auth.md`, covering:
+   - logging in, and the locked-out user
+   - logging out
+   - logged-out visitors being sent away from protected pages such as `/inventory.html`, `/cart.html`, the checkout steps and product details
+   - anything else it finds: the empty-field and wrong-password errors, closing the error message, and whether the back button gets you in after logout.
+2. **You review the plan** before any code is written.
+3. **Generator:** turns the plan into `apps/ui/tests/auth.spec.ts`.
+4. **Clean-up to our rules:** locators move into page objects (login page, plus the header menu as a component), imports come from the fixture file, and login tests start logged out.
+5. **Validation:** see each test fail, then `--repeat-each=10`, then lint and typecheck.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 15:42 |
++------------------------------------------------------------------------------+
+
+/prompt-log
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 15:42
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Regenerate the prompt log from session transcripts
+
+\eCanary: Checked!\e
+
+I regenerated `docs/prompt-log.txt` from the 3 session transcripts and didn't commit it. This reply will show up the next time the log is regenerated.
+
+The Playwright agents still need a session restart before I can start the auth tests: `/exit`, then `claude --continue`, approve `playwright-test`, and say "go".
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 15:43 |
++------------------------------------------------------------------------------+
+
+ok lets start with auth.spec.ts for UI. Make sure to use planner. Login test, locked user test, test logout, unauthorized user cannot access protected pages include any other you find.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 15:43
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Agents and the `playwright-test` MCP tools are loaded now. Starting the planner on the auth area.
+
+  > Agent: Plan SauceDemo auth tests
+
+While the planner explores the site in its browser window, I'm re-reading the UI testing guide so the code that follows the plan matches our rules.
+
+  > Read: ~/VNDNT/docs/guidelines/ui-tests.md
+  > Read: ~/VNDNT/docs/guidelines/general.md
+
+The planner is running in the background. It's writing the plan to `specs/auth.md` and will cover:
+- logging in
+- the locked-out user
+- errors from empty or wrong login details
+- logging out
+- opening protected pages without a session
+- any other login behavior it can confirm in the browser
+
+When it finishes, I'll check the plan against what you asked for and bring it to you before any test code gets generated.
+
+  > Read: ~/VNDNT/specs/auth.md
+  > Write: ~/VNDNT/specs/auth.md
+  > Bash: Confirm plan has no password and refresh prompt log
+  > Edit: ~/VNDNT/.gitignore
+  > Bash: Confirm agent MCP output folder is ignored
+
+\eCanary: Checked!\e
+
+The planner confirmed each behavior in a real browser and saved the plan to `specs/auth.md`. I cleaned it up to match our testing guides. It's ready for your review, and no test code has been written yet.
+
+**What the plan covers:** 15 scenarios, and one of each data-driven kind below becomes several tests.
+
+| Section | Scenarios |
+|---|---|
+| **Login** | `standard_user` logs in and sees the inventory page · submitting the form with Enter · the other 4 users who can log in (data-driven) · the password field hides what you type |
+| **Locked out user** | refused with "Epic sadface: Sorry, this user has been locked out." |
+| **Login validation** | empty username, with the password left empty or filled in · empty password · wrong login details (4 cases: wrong password, unknown user, wrong-case username, wrong-case password; all get the same "do not match" message) · the ✖ button closes the error |
+| **Logout** | the side menu's Logout returns you to the login page · after logout, `/inventory.html` redirects to login · the back button after logout doesn't bring the page back |
+| **Protected pages** | the 6 protected URLs redirect to login with a message naming the page (data-driven) · a session whose cookie has expired is sent to login on the next page load |
+
+**What I changed in the planner's draft:**
+- **Removed checks on styling and cookies:** the red input outline, the ✖ icons and whether the cookie exists. Our guides say to test what the user sees.
+- **One behavior per test:** trimmed extra checks such as the page title and logo from the login test. I also split the logout scenario in two: landing back on the login page, and the inventory page being blocked afterwards.
+- **Expired session:** rewrote the cookie scenario as "expired session is sent to login on the next page load". The planner's version checked that the page stays on screen until you navigate, which is a quirk of the app rather than behavior worth testing.
+- **No special timeout:** removed the advice to give `performance_glitch_user` a longer timeout. Its ~5 second delay already fits our 10-second action limit.
+- **Notes:** the planner has no way to add free-form notes, so it put them in a fake "test group". I made that a normal Notes section. It records a few quirks it found: the query string left out of the error message, both inputs showing an error when only one field is wrong, and typed values kept after an error.
+
+The plan never includes the actual password.
+
+**Also fixed:** the agents' MCP server writes console logs and page snapshots to `.playwright-mcp/` at the repo root. Those snapshots include the password text shown on the login page, so I added the folder to `.gitignore`.
+
+Next, once you approve:
+1. The generator writes `apps/ui/tests/auth.spec.ts` from the plan.
+2. I bring it in line with our rules:
+   - error, dismiss-button and alert locators added to `LoginPage`
+   - a side-menu component for logout
+   - logged-out groups start with an empty session
+   - the password comes from `env.SAUCE_PASSWORD`
+3. I validate it: see each test fail, `--repeat-each=10`, lint and typecheck.
+
+Approve the plan as is, or tell me what to change?
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 15:58 |
++------------------------------------------------------------------------------+
+
+Looks good use generator to build but keep in mind that you can do dynamic testing to be DRY and also re use already saved sessions we got fromnt the setup where it is applicable.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 15:59
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Starting the generator on the plan. It drives a single shared browser, so I'm running it in three batches, one after another:
+1. Login and the locked-out user
+2. Login validation
+3. Logout and protected pages
+
+Its drafts go to `apps/ui/tests/drafts/auth/`. After that, I'll merge them into one DRY `auth.spec.ts` with data-driven tests and the saved sessions.
+
+  > Agent: Generate auth drafts: login
+  > Bash: Inspect SauceDemo error and header markup for locators
+
+Locators I'll use:
+- **Error message:** role `alert`.
+- **Dismiss button:** role button "Dismiss error".
+- **Menu and logout:** the "Open Menu" button and "Logout" are both inside the header (`data-test="primary-header"`). Logout is a link with role button, so a header component can own both.
+
+I'll hold off on page-object changes until the generator batches finish, because every generator run compiles the fixture files.
+
+Batch 1 is done: 5 drafts. Starting batch 2 (login validation).
+
+  > Agent: Generate auth drafts: validation
+  > Bash: Read the first batch of generated drafts
+
+Batch 1 drafts look right: no hardcoded password, and logged-out tests use an empty session. Waiting for batch 2 (validation).
+
+Batch 2 is done: 4 drafts. Starting batch 3 (logout and protected pages).
+
+  > Agent: Generate auth drafts: logout, protected
+  > Bash: Read the second batch of generated drafts
+
+Batch 2 drafts look right. The generator is on batch 3 now (logout and protected pages). When it finishes, I'll merge all 14 drafts into `auth.spec.ts`.
+
+  > Bash: Read batch 3 drafts and run all generated drafts
+  > Read: ~/VNDNT/apps/ui/pages/login.page.ts
+  > Read: ~/VNDNT/apps/ui/pages/inventory.page.ts
+  > Read: ~/VNDNT/apps/ui/utils/auth.ts
+  > Read: ~/VNDNT/apps/ui/fixtures/pages.fixture.ts
+  > Write: ~/VNDNT/apps/ui/pages/login.page.ts
+  > Write: ~/VNDNT/apps/ui/components/header.component.ts
+  > Write: ~/VNDNT/apps/ui/pages/inventory.page.ts
+  > Edit: ~/VNDNT/apps/ui/utils/auth.ts
+  > Write: ~/VNDNT/apps/ui/data-models/auth.model.ts
+  > Write: ~/VNDNT/apps/ui/tests/auth.spec.ts
+  > Bash: Remove drafts, lint, typecheck and run the new auth spec
+  > Bash: Run auth spec against deliberate mutations, then restore files
+  > Bash: Mutate remaining error texts, restore, then repeat auth spec 10 times
+  > Bash: Update docs, run full checks, confirm no password, refresh prompt log
+
+\eCanary: Checked!\e
+
+`apps/ui/tests/auth.spec.ts` is done: 30 tests, all passing. I confirmed each kind of test fails when it should, and all 30 passed 10 times in a row (306 passed, counting the 6 setup tests). The full UI suite passes (38 tests), the API app passes (2), and lint and typecheck are clean. Nothing is committed.
+
+**How it was built:** the generator turned the 14 plan scenarios into draft tests in three batches, and all of them passed. I then merged them into one spec that follows our rules and deleted the drafts.
+
+**Data-driven tests (DRY):** the tests are loops over data tables in the new `data-models/auth.model.ts`, so a new case is one more row.
+
+| Group | Tests |
+|---|---|
+| Login | one per user who can log in (5) · submit with Enter · password field is masked |
+| Rejected login | locked_out_user, empty form, empty username, empty password, wrong password, unknown username, wrong-case username, wrong-case password (8) · dismissing the error hides it |
+| Logout | once per user (5) · inventory page blocked after logout · Back doesn't restore it |
+| Protected pages | the 6 protected URLs redirect to login without a session |
+| Expired session | the user is sent to login on the next page load |
+
+**Reusing saved sessions:**
+- **Logout:** runs as each of the 5 users, starting from the session the auth setup saved for that user (`storageStatePath(user)`). None of those tests log in through the form.
+- **The other logged-in tests** (the two after-logout checks and expired session) use the default `standard_user` session.
+- **Logged-out tests** start with no session through a new `emptyStorageState` helper in `utils/auth.ts`.
+- **The login tests** go through the form on purpose, because the form is what they test.
+
+**Supporting code:**
+- **`LoginPage`:** now has `error` (role alert), `dismissError`, `fillCredentials()` (used by the Enter-key test) and a `path`. `login()` now accepts any username, so the rejected cases can use it.
+- **`HeaderComponent`:** new, with `logout()` from the side menu. `InventoryPage` includes it and also got a `path`.
+- **Hardcoded values:** the specs contain no selectors, full URLs or password; the password comes from `env.SAUCE_PASSWORD`.
+- **Also changed:** CLAUDE.md now points to `emptyStorageState`, and I deleted the placeholder `components/.gitkeep`.
+
+**How I checked the tests can fail:** I ran them against deliberately broken versions:
+- **Wrong password:** the 6 tests that log in through the form (5 users plus Enter) failed with "Expected …/inventory.html, Received …/".
+- **Changed error texts:** every test that checks a message failed, showing the difference in the text.
+- **No Logout click:** the 7 logout tests failed.
+- **Wrong input type:** the masked-password test failed.
+- **No dismiss click:** the dismiss test failed.
+
+The files were restored afterwards.
+
+Two limits to know about:
+- **The "wrong-case password" case uppercases the password from `.env`.** If the password ever had no lowercase letters, that case would actually log in and the test would fail.
+- **Test length versus session lifetime.** The saved sessions last 10 minutes and the whole UI suite takes about 20 seconds, so this is fine for now. A suite that runs longer than 10 minutes would need to handle sessions expiring.
+
+The prompt log is refreshed. Do you want me to open a PR for this branch with `/create-pr`?
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 16:23 |
++------------------------------------------------------------------------------+
+
+ok look sgood commit changes
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 16:24
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Refresh prompt log, check branch, status and password leaks
 

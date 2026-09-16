@@ -4,11 +4,18 @@ node_modules/
 # Local environment
 .env
 
+# Saved login sessions. Each app's .auth/ holds its own .gitignore to keep the folder in git.
+# This rule still ignores the sessions if that file goes missing.
+**/.auth/*
+!**/.auth/.gitignore
+
 # Playwright output (any depth, one set per app)
-.auth/
 test-results/
 playwright-report/
 blob-report/
+
+# Console logs and page snapshots written by the Playwright test agents' MCP server
+.playwright-mcp/
 
 # Brainstorm artifact sources, kept out of the reviewed repo
 artifacts/

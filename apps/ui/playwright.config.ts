@@ -1,11 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 import { baseConfig } from '../../playwright.config';
 import { SAUCE_USERS } from './data-models/sauce-user.model';
+import { storageStatePath } from './utils/auth';
 import { env } from './utils/env';
-import { storageStatePath } from './utils/storage-state';
 
 export default defineConfig(baseConfig, {
-  testDir: './tests',
   use: {
     ...devices['Desktop Chrome'],
     baseURL: env.UI_BASE_URL,
@@ -15,12 +14,20 @@ export default defineConfig(baseConfig, {
   },
   projects: [
     {
-      name: 'setup',
-      testMatch: /.*\.setup\.ts/,
+      name: 'precondition',
+      testDir: './setup',
+      testMatch: 'precondition.setup.ts',
+    },
+    {
+      name: 'auth',
+      testDir: './setup',
+      testMatch: 'auth.setup.ts',
+      dependencies: ['precondition'],
     },
     {
       name: 'chromium',
-      dependencies: ['setup'],
+      testDir: './tests',
+      dependencies: ['auth'],
       use: { storageState: storageStatePath(SAUCE_USERS.standard) },
     },
   ],

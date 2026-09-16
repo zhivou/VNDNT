@@ -20,7 +20,7 @@ export default defineConfig(
     extends: [tseslint.configs.disableTypeChecked],
   },
   {
-    files: ['apps/*/tests/**/*.ts'],
+    files: ['apps/*/tests/**/*.ts', 'apps/*/setup/**/*.ts'],
     extends: [playwright.configs['flat/recommended']],
   },
 );

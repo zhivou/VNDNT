@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Strict: an unexpected extra field fails the contract check.
+// Strict: an unexpected extra field fails the schema check.
 export const postSchema = z.strictObject({
   userId: z.number().int().positive(),
   id: z.number().int().positive(),
@@ -9,3 +9,4 @@ export const postSchema = z.strictObject({
 });
 
 export type Post = z.infer<typeof postSchema>;
+export type NewPost = Omit<Post, 'id'>;

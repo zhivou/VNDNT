@@ -4,7 +4,6 @@ import { env } from './utils/env';
 
 // No device and only the request fixture, so no browser is launched for this app.
 export default defineConfig(baseConfig, {
-  testDir: './tests',
   use: {
     baseURL: env.API_BASE_URL,
     extraHTTPHeaders: { Accept: 'application/json' },
@@ -12,10 +11,12 @@ export default defineConfig(baseConfig, {
   projects: [
     {
       name: 'setup',
-      testMatch: /.*\.setup\.ts/,
+      testDir: './setup',
+      testMatch: '*.setup.ts',
     },
     {
       name: 'api',
+      testDir: './tests',
       dependencies: ['setup'],
     },
   ],

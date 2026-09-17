@@ -82,13 +82,6 @@ export { expect } from '@playwright/test';
 ## 5. Organization and execution
 
 - Split UI and API tests into separate Playwright **projects**, so either can run alone (`--project=api`).
-- Tag tests for selective runs, for example `@smoke` for a fast critical-path check before the full suite.
-
-  ```ts
-  test('user can check out', { tag: '@smoke' }, async ({ page }) => { ... });
-  // npx playwright test --grep @smoke
-  ```
-
 - Use `test.skip(condition, 'reason')` and `test.fixme('reason')` with a reason, and link a ticket when one exists. Never comment tests out.
 - Set `forbidOnly: !!process.env.CI` so a stray `test.only` can't slip into CI.
 
@@ -125,7 +118,7 @@ Before you call a test done:
 
 ## 10. CI
 
-- Run tests on every pull request. Run the smoke set first so failures show up fast.
+- Run tests on every pull request.
 - Install only the browsers you use: `npx playwright install chromium --with-deps`.
 - Shard large suites across machines (`--shard=1/4`) and merge the blob reports.
 - Keep `@playwright/test` up to date. New versions ship newer browsers and fixes.
@@ -138,4 +131,4 @@ Before you call a test done:
 - [ ] No sleeps, arbitrary timeouts or logic in the test body
 - [ ] No raw selectors, URLs or secrets in the spec
 - [ ] Assertions are specific, and you've seen them fail
-- [ ] It's tagged and sits in the right project
+- [ ] It sits in the right project

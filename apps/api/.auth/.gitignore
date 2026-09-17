@@ -1,0 +1,3 @@
+# Saved login sessions. Keep this folder in git, never its contents.
+*
+!.gitignore

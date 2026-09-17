@@ -1,10 +1,10 @@
-import type { APIRequestContext, APIResponse } from '@playwright/test';
+import type { APIResponse } from '@playwright/test';
+import { BaseApi, type ResourceId } from '@api/clients/base.api';
 
-// Returns the raw APIResponse so tests can assert on status, headers and body, including negative cases.
-export class PostsApi {
-  constructor(private readonly request: APIRequestContext) {}
+export class PostsApi extends BaseApi {
+  protected override readonly path = '/posts';
 
-  get(id: number): Promise<APIResponse> {
-    return this.request.get(`/posts/${id}`);
+  listComments(postId: ResourceId): Promise<APIResponse> {
+    return this.send('GET', `${this.itemPath(postId)}/comments`);
   }
 }

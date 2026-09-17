@@ -11,7 +11,7 @@ const FILTERS = [
 ] as const;
 
 for (const { resource, key } of FILTERS) {
-  test.describe(resource, () => {
+  test.describe(resource, { tag: '@p2' }, () => {
     test.use({ resource });
 
     test(`filter by ${key} returns only matching items`, async ({ api, existingRecord }) => {

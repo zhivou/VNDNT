@@ -18,7 +18,7 @@ const RESOURCES = [
 ] as const;
 
 for (const { resource, buildNew } of RESOURCES) {
-  test.describe(resource, () => {
+  test.describe(resource, { tag: '@p2' }, () => {
     test.use({ resource });
 
     // Ids are positive integers, so 0 can never exist.

@@ -15,7 +15,7 @@ const RESOURCES = [
 const PAGE_SIZE = 3;
 
 for (const { resource, sortField } of RESOURCES) {
-  test.describe(resource, () => {
+  test.describe(resource, { tag: '@p3' }, () => {
     test.use({ resource });
 
     test(`_limit returns the first ${PAGE_SIZE} records`, async ({ api, allRecords }) => {

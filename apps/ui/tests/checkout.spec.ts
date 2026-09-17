@@ -16,7 +16,7 @@ import { expect, test } from '@ui/fixtures/pages.fixture';
 // auth.spec.ts, and the totals for carts of every size in cart.spec.ts.
 
 test.describe('Completing checkout', () => {
-  test('places an order from the cart', async ({
+  test('places an order from the cart', { tag: '@p1' }, async ({
     fillCart,
     cartPage,
     checkoutStepOnePage,
@@ -49,7 +49,7 @@ test.describe('Completing checkout', () => {
     });
   });
 
-  test('confirms the order once it is placed', async ({
+  test('confirms the order once it is placed', { tag: '@p1' }, async ({
     fillCart,
     checkoutStepOnePage,
     checkoutStepTwoPage,
@@ -67,7 +67,7 @@ test.describe('Completing checkout', () => {
     await expect.soft(checkoutCompletePage.backHomeButton).toBeVisible();
   });
 
-  test('empties the cart once the order is placed', async ({
+  test('empties the cart once the order is placed', { tag: '@p2' }, async ({
     fillCart,
     checkoutStepOnePage,
     checkoutStepTwoPage,
@@ -88,7 +88,7 @@ test.describe('Completing checkout', () => {
     await expect(cartPage.items).toHaveCount(0);
   });
 
-  test('returns to the product list with Back Home', async ({
+  test('returns to the product list with Back Home', { tag: '@p3' }, async ({
     fillCart,
     checkoutStepOnePage,
     checkoutStepTwoPage,
@@ -108,7 +108,7 @@ test.describe('Completing checkout', () => {
     await expect(inventoryPage.removeButtons).toHaveCount(0);
   });
 
-  test('downloads a PDF receipt of the order', async ({
+  test('downloads a PDF receipt of the order', { tag: '@p3' }, async ({
     fillCart,
     checkoutStepOnePage,
     checkoutStepTwoPage,
@@ -128,7 +128,7 @@ test.describe('Completing checkout', () => {
 test.describe('Overview', () => {
   // Real bug: Sauce Labs Onesie's description reads "sleeved" instead of "sleeves". It needs a fix in the application,
   // not in this test. Remove test.fixme() once it's fixed.
-  test.fixme('shows every product in the order with its intended details', async ({
+  test.fixme('shows every product in the order with its intended details', { tag: '@p2' }, async ({
     fillCart,
     checkoutStepOnePage,
     checkoutStepTwoPage,
@@ -156,7 +156,11 @@ test.describe('Overview', () => {
     }
   });
 
-  test('shows the payment and shipping information', async ({ fillCart, checkoutStepOnePage, checkoutStepTwoPage }) => {
+  test('shows the payment and shipping information', { tag: '@p2' }, async ({
+    fillCart,
+    checkoutStepOnePage,
+    checkoutStepTwoPage,
+  }) => {
     await fillCart([CATALOG.backpack]);
     await checkoutStepOnePage.goto();
 
@@ -166,7 +170,7 @@ test.describe('Overview', () => {
     await expect.soft(checkoutStepTwoPage.shippingInformation).toHaveText(ORDER_DETAILS.shippingInformation);
   });
 
-  test('returns to the product list with Cancel and keeps the cart', async ({
+  test('returns to the product list with Cancel and keeps the cart', { tag: '@p3' }, async ({
     fillCart,
     checkoutStepOnePage,
     checkoutStepTwoPage,
@@ -187,7 +191,7 @@ test.describe('Overview', () => {
 
 test.describe('Your information', () => {
   for (const { description, buyer, error } of MISSING_INFORMATION) {
-    test(`rejects ${description}`, async ({ fillCart, checkoutStepOnePage, page }) => {
+    test(`rejects ${description}`, { tag: '@p2' }, async ({ fillCart, checkoutStepOnePage, page }) => {
       await fillCart([CATALOG.backpack]);
       await checkoutStepOnePage.goto();
 
@@ -201,7 +205,7 @@ test.describe('Your information', () => {
   // Real bug: a field of only spaces is accepted as filled in, and checkout continues to the overview. It needs a fix
   // in the application, not in these tests. Remove test.fixme() once it's fixed.
   for (const { description, buyer, error } of BLANK_INFORMATION) {
-    test.fixme(`rejects ${description}`, async ({ fillCart, checkoutStepOnePage, page }) => {
+    test.fixme(`rejects ${description}`, { tag: '@p2' }, async ({ fillCart, checkoutStepOnePage, page }) => {
       await fillCart([CATALOG.backpack]);
       await checkoutStepOnePage.goto();
 
@@ -212,7 +216,7 @@ test.describe('Your information', () => {
     });
   }
 
-  test('hides the error when it is dismissed', async ({ fillCart, checkoutStepOnePage }) => {
+  test('hides the error when it is dismissed', { tag: '@p3' }, async ({ fillCart, checkoutStepOnePage }) => {
     await fillCart([CATALOG.backpack]);
     await checkoutStepOnePage.goto();
     await checkoutStepOnePage.continueButton.click();
@@ -223,7 +227,7 @@ test.describe('Your information', () => {
     await expect(checkoutStepOnePage.error).toBeHidden();
   });
 
-  test('continues once the missing information is filled in', async ({
+  test('continues once the missing information is filled in', { tag: '@p2' }, async ({
     fillCart,
     checkoutStepOnePage,
     checkoutStepTwoPage,
@@ -241,7 +245,7 @@ test.describe('Your information', () => {
     await expect(checkoutStepTwoPage.title).toHaveText('Checkout: Overview');
   });
 
-  test('returns to the cart with Cancel and keeps its products', async ({
+  test('returns to the cart with Cancel and keeps its products', { tag: '@p3' }, async ({
     fillCart,
     checkoutStepOnePage,
     cartPage,
@@ -264,7 +268,7 @@ test.describe('Your information', () => {
 // Real bug: every checkout page opens by its URL, whatever state the cart and checkout are in, so the confirmation can
 // show "Thank you for your order!" for an order that was never placed. It needs a fix in the application, not in these
 // tests. Remove test.describe.fixme() once it's fixed.
-test.describe.fixme('Opening a checkout page by its URL', () => {
+test.describe.fixme('Opening a checkout page by its URL', { tag: '@p1' }, () => {
   test('sends an empty cart from Your Information back to the cart', async ({
     checkoutStepOnePage,
     cartPage,

@@ -3,7 +3,7 @@ import { todoSchema } from '@api/data-models/todo.model';
 import { expect, test } from '@api/fixtures/clients.fixture';
 
 // JSONPlaceholder fakes writes: it answers like a real API but saves nothing, so these tests check only the response.
-test.describe('CRUD', () => {
+test.describe('CRUD', { tag: '@p2' }, () => {
   test('create echoes the new todo with a generated id', async ({ todosApi }) => {
     const todo = buildNewTodo();
 

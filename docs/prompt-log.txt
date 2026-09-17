@@ -8,7 +8,7 @@ build this project, all sessions, in chronological order.
   AI blocks    (dashed border)  the replies; "  > Tool: ..." lines are actions
                                 the AI took (reading files, running commands, edits)
 
-Last generated: 2026-09-16 19:05
+Last generated: 2026-09-16 19:36
 
 
 ================================================================================
@@ -2208,6 +2208,543 @@ Commit all to PR oncludeng any other sessiosn changes
 I'll refresh the prompt log so this session is in it, then update PR #3 through `/create-pr`, which runs the sensitive data check.
 
   > Bash: Refresh prompt log and show changes
+  > Skill: create-pr
+  > Bash: Run preflight and check branch sync with origin
+
+The branch matches origin and follows the naming rule. I'll stage the three changed files and run the scanner.
+
+  > Bash: Stage changes and run the sensitive data scanner
+
+The scan is clean. Next I'll read the other session's README diff and the prompt log's new user messages myself.
+
+  > Bash: Review README diff and new prompt log user blocks
+  > Bash: Commit, push and check the PR
+
+The push went through. Next I'll rewrite the PR description so it covers the whole branch, including this fix and the new README.
+
+  > Bash: Update the PR description and show checks
+
+`gh pr edit` needs a token permission (`read:org`) this token doesn't have. The REST API can update the PR with the current permissions, so I'll use that.
+
+  > Bash: Update PR via REST API and list its checks
+
+I've committed everything, pushed it, and updated **PR #3**: https://github.com/zhivou/VNDNT/pull/3, from `d/ui-test-coverage` into `main`.
+
+The new commit, `3819d3d`, includes:
+- **Your other session's README rewrite:** the known-bugs table, setup, commands, the QA gates and how the tests are organized.
+- **The logout race fix** in `session-end.spec.ts`.
+- **The refreshed prompt log.**
+
+Nothing is left uncommitted, and both QA gates are running on the new commit.
+
+`gh pr edit` failed because your GitHub token doesn't have the `read:org` scope, so I updated the PR description through the REST API instead.
+
+**New PR description:**
+- **Summary:**
+  - **UI:** auth, product catalog, cart and checkout tests, checked against synthetic-data oracles.
+  - **Known bugs:** marked `test.fixme()` in the UI (17 tests) and `test.fail` in the API, all listed in the README.
+  - **Session-ending tests:** logout and expired-session tests run last, one at a time. The flaky Back-after-logout test is fixed by waiting for the login form.
+  - **API:** clients for every resource, with schema and functional tests.
+  - **CI and docs:** the two parallel QA gates and the expanded README.
+  - **Tooling:** the Playwright test agents, the sensitive data scan in `create-pr`, the guidelines and the prompt log.
+- **Testing:**
+  - UI suite in CI mode: 90 passed, 17 skipped, 0 failed.
+  - API suite: 117 passed.
+  - The two fixed logout tests: 25 runs each, all passed. With the CPU slowed 20×, the old steps failed 10/10 and the fixed ones passed 10/10.
+  - Lint and typecheck: clean.
+  - The previous gate run passed, with the one flaky logout retry.
+
+**Sensitive data check: clean.** The scanner found nothing in the 5 commits already on the branch or in the 3 staged files. I also read the README diff (no password, only where to set it) and the new user messages in the prompt log (a pasted CI log with the public GitHub runner path).
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 19:08 |
++------------------------------------------------------------------------------+
+
+/compact
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 19:08 |
++------------------------------------------------------------------------------+
+
+/compact
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 19:09 |
++------------------------------------------------------------------------------+
+
+Crate new branch from main, call it clean up. Check if we have any leftovers from planner/healer/genrator.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 19:09
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Check working tree, fetch, and see whether PR #3 is merged
+  > Bash: Update main from origin and create the clean-up branch
+  > Bash: List untracked and ignored files, and the spec and test folders
+  > Bash: Search tests for generator markers and leftover patterns
+  > Bash: Check worktrees, branches, stashes, stray files and MCP output
+  > Bash: Search for debug leftovers and check plan file references
+  > Bash: Read the auth plan and the start of the cart plan
+
+Created `d/clean-up` from the updated main (PR #3 is merged). Now comparing the plans in `specs/` with the actual tests, since the auth plan still reads like a raw planner draft.
+
+  > Bash: List plan scenario headings and all UI test titles
+  > Bash: Check plans for agent tool names and page objects for unused members
+  > Bash: Find page object members and exports that nothing uses
+  > Bash: Inspect the unused type, MCP output folder and specs README history
+  > Bash: Read the auth spec and its data model
+
+I created `d/clean-up` from main after pulling PR #3's merge. I haven't changed anything yet and the branch isn't pushed. There are two leftovers in the repo and one local folder, all small.
+
+**In the repo**
+1. **`specs/auth.md` is still the planner's raw draft.** The other three plans were brought in line with their tests, but this one wasn't:
+   - **Wrong claim:** line 5 says every link loads a new page, and a note (line 187) says in-app links are full page loads. The site actually changes pages without a reload, as the other plans say. That's why the logout race happened.
+   - **Instructions meant for the agents:** line 9 tells them to clear cookies with the MCP tool `browser_evaluate`. Steps also say "clear cookies and localStorage first" and use full `https://www.saucedemo.com/...` URLs instead of paths.
+   - **Out of step with the tests:**
+     - 1.3 says "each other account", but the tests log in all five users, so it overlaps 1.1.
+     - 4.1 covers only `standard_user`, but the test logs out each of the five.
+     - 3.3(d) says the password case is inverted, but the test uses all capitals.
+     - Sections 2 and 3 are one "Rejected login" group in the tests. In the other plans, sections match the test groups.
+2. **`specs/README.md`** only says "This is a directory for test plans." It's the placeholder `init-agents` creates.
+
+**Local only (gitignored, never committed)**
+3. **`.playwright-mcp/`:** 305 files (1.6 MB) the agents' browser server left behind: page snapshots, console logs, 2 screenshots and a receipt PDF downloaded while exploring checkout. It's safe to delete.
+
+**Checked and clean**
+- **Test code:** every spec imports from the fixture file. There are no raw selectors, fixed waits, `.only`, `pause()` or `console.log`, and every `fixme` has its real-bug comment. The only `page.goto` is `apps/ui/tests/auth.spec.ts:69`, which loops over paths from `auth.model.ts`.
+- **Page objects:** every page object and component member is used somewhere.
+- **Plans match tests:** every plan scenario has a test and every test is in a plan (107 listed).
+- **Nothing temporary left:** no temporary specs, extra worktrees or stashes.
+- **Agent files still needed:** keep `seed.spec.ts`, the `**Seed:**` lines and the `// spec: specs/<plan>.md` headers. The agents rely on them, and the headers link each spec to its plan.
+
+Separately, the `SauceUser` type in `apps/ui/data-models/sauce-user.model.ts` is never used. It dates from the framework skeleton, not the agents.
+
+I'd rewrite `specs/auth.md` to match the tests, like the other plans, delete `specs/README.md` and `.playwright-mcp/`, and optionally remove `SauceUser`. Should I go ahead?
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 19:14 |
++------------------------------------------------------------------------------+
+
+Ok I missed prioritization, we automated everything without a risk based order. Lets fix it after the fact. First propose a risk table for UI and API features: what breaks for the user, likelihood, and priority p1 critical, p2 important, p3 low. Show me the table and the test to priority mapping before changing anything. After I approve, add tags @p1 @p2 @p3 to the tests, on describe blocks where possible so we dont repeat, add npm scripts test:p1 test:p2, update CLAUDE.md because we now use tags for priority only, and add the risk table to README with an honest note that priorities were assigned after automation. Dont change any test logic. We still going to run them all but priritization can be applied later if needed.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 19:14
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Read npm scripts, list API tests, check grep with setup projects
+  > Bash: Check whether grep filters the teardown project when selected
+  > Bash: Outline describe and test structure in UI and API specs
+  > Bash: Read the place-order test and API known-bugs and nested routes
+  > Bash: Read bug comments and check eslint plugin tag rule
+
+Here's the proposal. I haven't changed anything yet.
+
+**How I set priority.** Priority is based on what breaks for the user, adjusted by how likely it is. Where the tests found a bug, likelihood is High.
+- **P1 critical:** the user can't log in or buy, pays the wrong amount, or a security control fails. For the API, clients can't read data.
+- **P2 important:** a main feature gives wrong results, but the user can still finish or fix it.
+- **P3 low:** a convenience, or a second way to do something that has a working first way.
+
+## UI risks (SauceDemo)
+
+| ID | Feature | What breaks for the user | Likelihood | Priority |
+|---|---|---|---|---|
+| U1 | Login | The user can't log in, so they can't shop at all | Medium: login differs per user (performance_glitch_user takes 5–6 s) | **P1** |
+| U2 | Rejecting bad logins | A locked-out account, wrong password or empty form gets in | Low: every check passes | **P1** |
+| U3 | Pages need a session | The store, cart or checkout opens without logging in | Low | **P1** |
+| U4 | Logout and session expiry | The next person on a shared computer is still logged in, or Back shows the store again | Medium: logout is client-side and timing-sensitive | **P1** |
+| U5 | Place an order | The buyer can't complete a purchase | Medium | **P1** |
+| U6 | Order totals and tax | The buyer is charged the wrong amount | High: a 4-product total isn't rounded to cents | **P1** |
+| U7 | Checkout steps opened by URL | "Thank you for your order" appears for an order never placed or with no buyer information | High: every step opens by URL | **P1** |
+| U8 | Add to cart, open the cart | The buyer can't build an order | Medium | **P1** |
+| U9 | Required buyer information | Orders go through with no name or postal code, so they can't be delivered | High: fields of only spaces are accepted | P2 |
+| U10 | Keeping the cart right | The cart shows or keeps the wrong products, but the buyer can see and fix it before paying | High: Checkout stays enabled for an empty cart | P2 |
+| U11 | Product and order details | The buyer picks or confirms a product from wrong information | High: the Onesie description has a typo | P2 |
+| U12 | Password masking | The password shows on screen | Low | P2 |
+| U13 | Conveniences with another way round (sorting, image links, Enter key, Back/Cancel buttons, dismissing errors, Reset App State, PDF receipt) | Slower or more annoying, but the task still gets done | High: Reset App State leaves stale Remove buttons | P3 |
+
+## API risks (JSONPlaceholder, where the user is a client app)
+
+| ID | Feature | What breaks for the user | Likelihood | Priority |
+|---|---|---|---|---|
+| A1 | Reading records (list, get, 404 for a missing id) | Every client that shows data breaks, or crashes on a changed field | Low: stable, schemas pass | **P1** |
+| A2 | Writing records (create, replace, update, delete) | A save flow errors or shows the wrong response. The API saves nothing by design, so no data is lost | Low | P2 |
+| A3 | Error codes for bad writes | The client gets a 500 and can't tell its own mistake from an outage | High: 2 known bugs (`test.fail`) | P2 |
+| A4 | Writes not persisted, PATCH merges | A write changes the shared data every client reads, or PATCH wipes fields | Low | P2 |
+| A5 | Filtering by parent id | A client shows another user's posts, albums or todos | Low | P2 |
+| A6 | Nested routes (`/users/1/posts`) | Same as A5, but the query filter still works | Low | P3 |
+| A7 | Paging and sorting | Lists show the wrong slice or order. The datasets are small enough to fetch whole | Low | P3 |
+
+## Test to priority mapping
+
+The tag goes on the describe when all of its tests share a priority, and on each test otherwise. A loop gets its tag once, so every test ends up with exactly one tag.
+
+**auth.spec.ts** (P1 19, P2 1, P3 2)
+
+| Tests | # | Tag | Risk | On |
+|---|---|---|---|---|
+| Login › `<user>` logs in and lands on the inventory page | 5 | @p1 | U1 | test |
+| Login › masks the password field | 1 | @p2 | U12 | test |
+| Login › submits the login form with the Enter key | 1 | @p3 | U13 | test |
+| Rejected login › rejects … (all 8 cases) | 8 | @p1 | U2 | test |
+| Rejected login › hides the error when it is dismissed | 1 | @p3 | U13 | test |
+| Protected pages | 6 | @p1 | U3 | describe |
+
+**session-end.spec.ts** (P1 8)
+
+| Tests | # | Tag | Risk | On |
+|---|---|---|---|---|
+| Logout | 7 | @p1 | U4 | describe |
+| Expired session | 1 | @p1 | U4 | describe |
+
+**product-catalog.spec.ts** (P2 7, P3 12)
+
+| Tests | # | Tag | Risk | On |
+|---|---|---|---|---|
+| Product list | 1 | @p2 | U11 | describe |
+| Sorting | 5 | @p3 | U13 | describe |
+| Product details › shows the details of `<product>` | 6 | @p2 | U11 | test |
+| Product details › opens `<product>` from its image | 6 | @p3 | U13 | test |
+| Product details › returns with Back to products | 1 | @p3 | U13 | test |
+
+**cart.spec.ts** (P1 9, P2 14, P3 4)
+
+| Tests | # | Tag | Risk | On |
+|---|---|---|---|---|
+| Adding and removing › adds a product from the list | 1 | @p1 | U8 | test |
+| Adding and removing › the other 8 (add on the details page, remove ×2, list and details sync ×2, badge ×2, reload) | 8 | @p2 | U10 | test |
+| Cart page › opens from the cart link in the header | 1 | @p1 | U8 | test |
+| Cart page › intended details, only the added products in order, empty cart | 3 | @p2 | U10, U11 | test |
+| Removing from the cart page | 2 | @p2 | U10 | describe |
+| Navigation › goes to checkout with Checkout | 1 | @p1 | U5 | test |
+| Navigation › disables Checkout while the cart is empty | 1 | @p2 | U10 | test |
+| Navigation › product name link, Continue Shopping | 2 | @p3 | U13 | test |
+| Reset App State | 2 | @p3 | U13 | describe |
+| Totals | 6 | @p1 | U6 | describe |
+
+**checkout.spec.ts** (P1 8, P2 11, P3 5)
+
+| Tests | # | Tag | Risk | On |
+|---|---|---|---|---|
+| Completing checkout › places an order, confirms the order | 2 | @p1 | U5 | test |
+| Completing checkout › empties the cart | 1 | @p2 | U10 | test |
+| Completing checkout › Back Home, PDF receipt | 2 | @p3 | U13 | test |
+| Overview › intended product details, payment and shipping info | 2 | @p2 | U11 | test |
+| Overview › Cancel keeps the cart | 1 | @p3 | U13 | test |
+| Your information › rejects missing (4) and only-spaces (3), continues once filled in | 8 | @p2 | U9 | test |
+| Your information › dismiss the error, Cancel keeps products | 2 | @p3 | U13 | test |
+| Opening a checkout page by its URL | 6 | @p1 | U7 | describe |
+
+**API** (P1 18, P2 64, P3 34), all tagged on describes:
+
+| Tests | # | Tag | Risk |
+|---|---|---|---|
+| `schema/*` › schema (6 files) | 18 | @p1 | A1 |
+| `functional/<resource>` › CRUD (6 files) | 24 | @p2 | A2 |
+| `known-bugs` › `<resource>` | 12 | @p2 | A3 |
+| `persistence` › `<resource>` | 18 | @p2 | A4 |
+| `filtering` › `<resource>` | 10 | @p2 | A5 |
+| `nested-routes` › `<route>` | 4 | @p3 | A6 |
+| `paging-sorting` › `<resource>` | 30 | @p3 | A7 |
+
+**Totals:**
+- **UI:** 44 P1, 33 P2, 23 P3. P1 is large because the security checks run once per user, per page or per case.
+- **API:** 18 P1, 64 P2, 34 P3.
+
+The setup projects and `seed.spec.ts` stay untagged. Tags go in the test options next to the existing annotations, so no test logic changes.
+
+## Decisions for you
+1. **What `test:p2` runs.** I recommend P1 and P2 together (`--grep "@p1|@p2"`), with `test:p1` running P1 only. Both would run the API app, then the UI app, like `npm test`.
+   - One thing I checked: `--grep` doesn't filter `session-end`, because it runs as the login setup's teardown. Its 8 tests run with any filter.
+   - They're all P1, so both scripts stay accurate if P2 includes P1. A P2-only script would also run those 8 P1 tests.
+2. **Which branch.** I'd do this on `d/clean-up` unless you want a separate branch.
+
+The clean-up from before (the auth plan, `specs/README.md`, `.playwright-mcp/`) is still waiting for your go-ahead.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 19:19 |
++------------------------------------------------------------------------------+
+
+Looks good add to the readme and to the test, add it as tags to the tests. Also readme missing agents availble ad used in this repo.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 19:20 |
++------------------------------------------------------------------------------+
+
+Looks good add to the readme and to the test, add it as tags to the tests. Also readme missing agents availble ad used in this repo. Do not run test at this moment we will validate it in Pr later
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 19:20
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Read README, ESLint config and the agents folder
+  > Bash: Find which agents the prompt log shows were used
+  > Bash: Check how agents were used for checkout and across the log
+  > Bash: Check the ESLint tag rule and Playwright test details type
+  > Bash: Check for a formatter and read the cart spec
+
+Adding the priority tags now. I'm reading the remaining test declarations so each edit matches exactly.
+
+  > Bash: Show test and describe declarations in checkout and API specs
+  > Bash: Insert priority tags at each mapped test and describe
+  > Bash: Show the tagged lines that exceed 120 characters
+  > Bash: Wrap over-long tagged lines and show the result
+
+Tags are in. Now checking them without running tests: listing tests and their tags, plus typecheck and lint.
+
+  > Bash: List tests with tags per project, then typecheck and lint
+
+Tag counts match the approved mapping, and typecheck and lint pass. Next: the npm scripts, CLAUDE.md and the README.
+
+  > Bash: Find existing mentions of tags or priority in docs
+
+Now the npm scripts and CLAUDE.md.
+
+  > Bash: Add test:p1 and test:p2 scripts and list what they select
+  > Read: ~/VNDNT/CLAUDE.md
+  > Edit: ~/VNDNT/CLAUDE.md
+  > Edit: ~/VNDNT/CLAUDE.md
+  > Edit: ~/VNDNT/CLAUDE.md
+  > Edit: ~/VNDNT/CLAUDE.md
+  > Bash: Check how the create-pr and prompt-log skills were used
+  > Read: ~/VNDNT/README.md
+  > Edit: ~/VNDNT/README.md
+  > Edit: ~/VNDNT/README.md
+  > Edit: ~/VNDNT/README.md
+  > Edit: ~/VNDNT/README.md
+  > Edit: ~/VNDNT/README.md
+  > Bash: Rerun lint and typecheck and summarize the changes
+  > Bash: Confirm spec changes are only the added tags
+
+I've tagged every test with its priority and updated the npm scripts, CLAUDE.md and the README. Nothing is committed yet; it's all on `d/clean-up`. No tests were run: I only listed them, which doesn't run anything, plus lint and typecheck, which both pass.
+
+**Tags**
+- The tags match the approved mapping: UI has 44 P1, 33 P2 and 23 P3; the API has 18, 64 and 34. Every test has exactly one tag. The setup projects and `seed.spec.ts` have none.
+- 26 tags sit on describe blocks, including all 17 on the API side. The other 38 are on individual tests, in UI describes that mix priorities. In a loop, the tag is written once.
+- I compared all 22 spec files with main after taking the tags out, and they're identical. The only other change is 7 lines I split because they went over 120 characters.
+
+**npm scripts**
+- `test:p1` runs P1 only, and `test:p2` runs P1 and P2. Each runs the API app, then the UI app, like `npm test`.
+- Listing what they select: `test:p1` picks 18 API and 44 UI tests, and `test:p2` picks 82 API and 77 UI tests, plus the setup projects. The logout and session-expiry tests (`session-end`) always run in full because they're a teardown, but they're all P1 anyway.
+- CI still runs every test.
+
+**CLAUDE.md**
+- The "don't tag tests" rule is now "tags are for priority only". Each test gets exactly one tag from the README's risk table, on the describe when all its tests share a priority. A feature the table doesn't cover gets a new row first.
+- Also added: the two new commands, a note that CI runs every priority, and a priority tag in the checklist for generated specs.
+
+**README**
+- **Risk-based priorities:** a callout says plainly that priorities were assigned after the tests were written, and that likelihood is a judgment call because these demo apps have no usage data. Below it are the priority definitions, the UI and API risk tables and the test counts per priority. The new commands are in the "Running the tests" table.
+- **AI agents and skills:** what the three Playwright agents do and how each was used here:
+  - **Planner:** drafted all four plans.
+  - **Generator:** drafted the auth, catalog and cart tests. Checkout was written without it.
+  - **Healer:** investigated the flaky logout test, but its "slow app" diagnosis was wrong.
+
+  The section also notes that the API tests used no agents, and lists the `/prompt-log` and `/create-pr` skills.
+
+ESLint's `playwright/valid-test-tags` rule could be set to allow only `@p1`, `@p2` and `@p3`, which would enforce the tags-for-priority rule. I didn't add it because you didn't ask for it.
+
+The earlier clean-up (the auth plan, `specs/README.md`, `.playwright-mcp/`) still needs your go-ahead.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 19:25 |
++------------------------------------------------------------------------------+
+
+/prompt-log
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 19:25
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Regenerate the prompt log from session transcripts
+
+I updated `docs/prompt-log.txt` from all 4 session transcripts, including this one. It doesn't include this reply, so the next run will pick that up. It contains no copies of the SauceDemo password, and it isn't committed.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 19:25 |
++------------------------------------------------------------------------------+
+
+Ok all work is done, lets write docs/ai-evaluation.md, max 2 pages. Use docs/prompt-log.txt as the only source, dont invent anything. Sections: setup (tools, agents and inputs we used like CLAUDE.md, guidelines, skills), what worked, what did not and what I changed (real examples with
+  prompt log timestamps, what AI did, how I caught it, what changed), takeaways. Keep it honest and short, no marketing tone
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 19:25
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Check prompt log size and format
+  > Read: ~/VNDNT/docs/prompt-log.txt
+  > Read: ~/VNDNT/docs/prompt-log.txt
+  > Read: ~/VNDNT/docs/prompt-log.txt
+  > Read: ~/VNDNT/docs/prompt-log.txt
+
+I've read the whole prompt log (3,049 lines, 4 sessions). Now writing the evaluation from it.
+
+  > Write: ~/VNDNT/docs/ai-evaluation.md
+  > Bash: Count words and check for the password
+
+The draft is 1,445 words, which is more than 2 pages. Trimming it down.
+
+  > Write: ~/VNDNT/docs/ai-evaluation.md
+  > Bash: Count words and show working tree changes
+  > Edit: ~/VNDNT/docs/ai-evaluation.md
+  > Edit: ~/VNDNT/docs/ai-evaluation.md
+
+I wrote `docs/ai-evaluation.md` using only the prompt log. It's about 1,080 words with one table, so it should fit in 2 pages. It isn't committed.
+
+**What's in each section**
+- **Setup:** 4 sessions from 12:28 to 19:25, two of them running in parallel on the same branch. It covers the stack, what `CLAUDE.md` and the guidelines contain, both skills, the three Playwright agents and the two QA gates.
+- **What worked:**
+  - The oracles found 6 UI bugs, each with its timestamp.
+  - Tests were broken on purpose to prove they can fail.
+  - The AI caught some of its own mistakes, such as agent snapshots containing the password.
+  - Staging by path kept the other session's changes out of commits.
+- **What didn't work, and what I changed:** a table of 8 examples, each with a time, what the AI did, how it was caught and what changed. Examples:
+  - setup files in the wrong folder, twice
+  - the `@smoke` tag
+  - an unproven wait that was removed
+  - the healer blaming a slow app for the flaky logout test
+  - prioritizing only after the tests were written
+
+  Below the table are shorter weak spots: the generator added little, and the two sessions ended up with different conventions for known bugs.
+- **Takeaways:** 5 short points.
+
+**Where I kept it honest**
+- **API bugs:** the log shows you already knew the 2 API bugs and asked for them to be pinned, so the doc says that instead of crediting the AI.
+- **Who caught what:** each problem is credited to whoever caught it, you or the AI. Some the AI caught itself; you caught the folder placement and the tag.
+- **Unresolved items:** the doc says so where something is still open. The Back Home flake's cause is unknown, `specs/auth.md` hasn't been rewritten, and the two known-bug conventions were never unified.
+
+The log leaves out a few things, so the doc does too: the model name, your mid-task note about shared sessions, and your correction about the API data snapshots. The last two appear only as mid-turn messages, not as prompts.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 19:29 |
++------------------------------------------------------------------------------+
+
+Check docs/ai-evaluation.md against the brief ~/Downloads/Senior\ QA\ Engineer\ Take-Home\ Exercise.pdf. Does it clearly cover what worked, what did not and what I changed? Is every example real and matching a timestamp in docs/prompt-log.txt? Point out anything missing, vague or not true. Dont change the file, only report. I
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 19:30
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Read: ~/Downloads/Senior QA Engineer Take-Home Exercise.pdf
+  > Read: ~/VNDNT/docs/ai-evaluation.md
+  > Bash: Locate key evidence lines in the prompt log
+
+The evaluation covers what the brief asks for: what worked, what didn't and what you changed, with a real example and timestamp for each. I checked every example against `docs/prompt-log.txt`. None is invented, and all but three timestamps are correct. The main problems are credit and overclaiming: several rows blame the AI for choices you made, and a few claims go further than the log.
+
+## Not true or misleading
+1. **The oracle credit is too broad** (`ai-evaluation.md:22-25`).
+   - Only the Onesie typo and the item total are mismatches against oracle data.
+   - The other four bugs rest on behavior that was never specified, only decided during the work. "The rule is that a page opens only once the steps before it are done" came from the AI (log:1858). The direct-URL check came from your own prompt at 17:51 (log:1731).
+2. **The API row blames the AI for your scope** (`:44`).
+   - At 17:55 you asked for "contract and data-snapshot checks… Simple CRUD validation… create a subfolder" (log:2750). The AI did that.
+   - At 18:09 you said to keep `tests/contract` for schema, then renamed it at 18:31. That's your design changing, not an AI failure.
+3. **The prioritization row credits the miss to the AI** (`:46`). Your prompt says "I missed prioritization" (log:2333).
+4. **The two known-bug conventions came from your prompts** (`:51`): `test.fail` for the API at 18:15 (log:2872) and `fixme` for the UI at 18:28 (log:1955). The parallel sessions didn't cause the split.
+5. **"The other 5 products go unchecked" is too strong** (`:52`). The log says they go unchecked "on the list, cart page or overview" (log:2015). The details-page test still checks them (log:2011).
+6. **"Noticed but left it" leaves out your part** (`:42`). The AI asked "say if you want it corrected" (log:1515), and nobody replied.
+7. **The `@smoke` tag wasn't just copied** (`:41`). The AI wrote the placeholder specs with that tag in the 13:48 skeleton (log:1542, "from the first framework commit"), following its own guidelines.
+8. **Three timestamps are off:**
+   - **Second session** (`:7`): at 16:55 it worked on the `create-pr` scan. API work started at 17:14 (log:2665).
+   - **Onesie typo** (`:23`): stamped 16:28, yet listed as a result of your 16:32 instruction. AI blocks carry the time the turn started, so they can predate prompts that shaped them.
+   - **Skill restart** (`:53`): the `create-pr` skill was already invoked at 13:05 (log:249). Restarting was your choice (log:258). Only the agents needed a restart (log:1102).
+9. **Two takeaways go further than the log:**
+   - **Validation** (`:59`): "Made the results trustworthy" is too strong. The logout test passed 10 local repeats (log:1274) and still flaked on CI at 18:40.
+   - **Rules** (`:57`): "Later sessions kept to them" has no evidence in the log.
+10. **Minor points:**
+    - `.playwright-mcp/` (`:31`) is the agents' server output, not the AI's own mistake.
+    - In the setup row (`:40`), your first correction, "inside setup folder" (log:936), also fits `tests/setup/`.
+
+## Missing
+- **The password in `.env.example`.** The skeleton put the public password in `.env.example` (log:755), and you replaced it with `add-here` (log:808, 15:02). It's a clear "what I changed" example, and it leads to your 16:55 rule "Never allow open passwords to commit" (log:2580).
+- **A race that got past local checks.** It was in the test from 15:58 and passed 10 repeats, but only showed up on CI. That's the most useful "what didn't work" point about validation.
+- **What worked on the API side:**
+  - breaking two schemas on purpose made the tests that check them fail (log:2810)
+  - it confirmed each `test.fail` test fails with a real 500 (log:2916)
+  - a local echo server confirmed the shared headers reach every request (log:2721)
+
+  "What worked" is currently all UI.
+- **Priority tags never ran.** They were added at 19:20 without running any tests (log:2527).
+- **Time.** The doc shows 12:28–19:25, while the brief asks for about four hours. A reviewer will notice, so decide whether to address it. The log doesn't show breaks.
+
+## Vague
+- **Unnamed test** (`:43`): "A test failed once" should name the Back Home test (log:1793).
+- **Generator judgment** (`:50`): "The generator added little" needs evidence. At 15:58 its 14 drafts all passed and became the base for `auth.spec.ts` (log:1276).
+- **Unnamed rules** (`:11`): "Rules added after reviews" would be clearer with two or three named, such as no tags, oracles and `setup/`.
+- **Timestamp meaning** (`:3`): a one-line note that AI timestamps mark when a turn started would explain the ordering in point 8.
+
+## Outside the doc, but it affects the brief's "all prompts" deliverable
+- **Choices you made mid-turn aren't in the log.** Answers to the AI's multiple-choice questions and messages you typed while it was working have no USER block. Examples: "both of your answers" (log:1408), "As you picked" (log:2697), "Following your correction" (log:2787, 2807).
+- **The committed prompt log has stray canary lines**, such as `\eCanary: Checked!\e` (log:317), as noted at log:2642.
+- **Two phrases will go stale.** Regenerating the log before the PR adds later entries, so "between 12:28 and 19:25" and "by the last log entry" will no longer be accurate.
+
+I haven't changed the file.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 19:34 |
++------------------------------------------------------------------------------+
+
+/prompt-log
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 19:34
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Regenerate the prompt log from session transcripts
+  > Bash: Show the log's generation time and length
+
+I updated `docs/prompt-log.txt` (generated 19:34) from all 4 sessions. It now includes the evaluation review, but not this reply; the next run will add it. It contains no copies of the SauceDemo password, and it isn't committed.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 19:34 |
++------------------------------------------------------------------------------+
+
+Create a PR
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 19:34
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Skill: create-pr
+  > Bash: Run PR preflight checks and refresh the prompt log
+  > Bash: Inspect the new untracked backup log file
+  > Bash: Stage the branch work by path and run the sensitive data scanner
+  > Bash: Review new prompt log user messages and added lines for credentials
+  > Bash: Commit the staged work, push the branch, check for an existing PR
+  ! Interrupted by user
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 19:35 |
++------------------------------------------------------------------------------+
+
+just remove password and commit the file i need it in main
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 19:35
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Replace the password with a placeholder and scan the file for other secrets
+  > Bash: Show the redacted lines and check for leftover password fragments
+  > Bash: Show the redacted line that was mostly whitespace
+  > Bash: Refresh prompt log, stage the redacted file, rerun the scanner
 
 
 ================================================================================

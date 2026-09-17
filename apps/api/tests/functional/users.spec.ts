@@ -3,7 +3,7 @@ import { userSchema } from '@api/data-models/user.model';
 import { expect, test } from '@api/fixtures/clients.fixture';
 
 // JSONPlaceholder fakes writes: it answers like a real API but saves nothing, so these tests check only the response.
-test.describe('CRUD', () => {
+test.describe('CRUD', { tag: '@p2' }, () => {
   test('create echoes the new user with a generated id', async ({ usersApi }) => {
     const user = buildNewUser();
 

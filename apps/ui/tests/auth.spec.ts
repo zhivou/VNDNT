@@ -9,7 +9,11 @@ test.describe('Login', () => {
   test.use({ storageState: emptyStorageState });
 
   for (const user of SESSION_USERS) {
-    test(`${user} logs in and lands on the inventory page`, async ({ loginPage, inventoryPage, page }) => {
+    test(`${user} logs in and lands on the inventory page`, { tag: '@p1' }, async ({
+      loginPage,
+      inventoryPage,
+      page,
+    }) => {
       await loginPage.goto();
 
       await loginPage.login(user, env.SAUCE_PASSWORD);
@@ -19,7 +23,7 @@ test.describe('Login', () => {
     });
   }
 
-  test('submits the login form with the Enter key', async ({ loginPage, inventoryPage, page }) => {
+  test('submits the login form with the Enter key', { tag: '@p3' }, async ({ loginPage, inventoryPage, page }) => {
     await loginPage.goto();
     await loginPage.fillCredentials(SAUCE_USERS.standard, env.SAUCE_PASSWORD);
 
@@ -29,7 +33,7 @@ test.describe('Login', () => {
     await expect(inventoryPage.title).toHaveText('Products');
   });
 
-  test('masks the password field', async ({ loginPage }) => {
+  test('masks the password field', { tag: '@p2' }, async ({ loginPage }) => {
     await loginPage.goto();
 
     await expect(loginPage.password).toHaveAttribute('type', 'password');
@@ -40,7 +44,7 @@ test.describe('Rejected login', () => {
   test.use({ storageState: emptyStorageState });
 
   for (const { description, username, password, error } of REJECTED_LOGINS) {
-    test(`rejects ${description}`, async ({ loginPage, page }) => {
+    test(`rejects ${description}`, { tag: '@p1' }, async ({ loginPage, page }) => {
       await loginPage.goto();
 
       await loginPage.login(username, password);
@@ -50,7 +54,7 @@ test.describe('Rejected login', () => {
     });
   }
 
-  test('hides the error when it is dismissed', async ({ loginPage }) => {
+  test('hides the error when it is dismissed', { tag: '@p3' }, async ({ loginPage }) => {
     await loginPage.goto();
     await loginPage.login(SAUCE_USERS.standard, '');
     await expect(loginPage.error).toBeVisible();
@@ -61,7 +65,7 @@ test.describe('Rejected login', () => {
   });
 });
 
-test.describe('Protected pages', () => {
+test.describe('Protected pages', { tag: '@p1' }, () => {
   test.use({ storageState: emptyStorageState });
 
   for (const { url, path } of PROTECTED_PAGES) {

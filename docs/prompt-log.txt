@@ -8,7 +8,7 @@ build this project, all sessions, in chronological order.
   AI blocks    (dashed border)  the replies; "  > Tool: ..." lines are actions
                                 the AI took (reading files, running commands, edits)
 
-Last generated: 2026-09-16 18:35
+Last generated: 2026-09-16 19:05
 
 
 ================================================================================
@@ -2040,6 +2040,175 @@ I'll refresh the prompt log for this session first. Then, since the API work fro
 
   > Bash: Refresh prompt log, lint, typecheck, run API tests
 
+The prompt log has no password, lint and typecheck pass, and the API suite passes: 117 tests with the new API work included. Next I'll open the PR with `/create-pr`.
+
+  > Skill: create-pr
+  > Bash: Run create-pr preflight checks
+
+The branch `d/ui-test-coverage` follows the naming rule and isn't pushed yet. Before staging by path, I'll expand the untracked folders so nothing generated slips in.
+
+  > Bash: List untracked files and stage everything by path
+
+All 52 changed files are staged, with no `.env`, session files or test output among them. Next is the sensitive data scan.
+
+  > Bash: Run the sensitive data scanner against main
+
+The scan came back clean. Next is my own read of what the PR publishes, starting with its size and anything that looks like a credential.
+
+  > Bash: Size the diffs and grep added lines for credentials
+
+These hits are the scanner's own patterns and the skill's docs, not credentials. I'll run the same search over everything else.
+
+  > Bash: Grep app code and docs for credentials, emails, URLs
+  > Bash: Review API builders and personal-looking fields
+  > Bash: Inspect the prompt log's block format
+  > Bash: List user messages new to the prompt log since main
+  > Bash: Print the rest of the long user messages
+
+The sensitive data check passed: the scan is clean, and my review found no credentials, real personal data or client data. Committing:
+
+  > Bash: Commit everything and push the branch
+
+Pushed. Next I'll write the PR summary from the branch contents alone.
+
+  > Bash: Show branch commits, diff stat and existing PR
+
+No PR exists for this branch yet, so I'll create one.
+
+  > Bash: Create the pull request against main
+  > Bash: Check whether the QA gates started on the PR
+
+\eCanary: Checked!\e
+
+I've opened the PR: **https://github.com/zhivou/VNDNT/pull/3**, from `d/ui-test-coverage` into `main`.
+
+The last commit, `b0a2a15`, includes everything: the CI workflow, the UI `fixme` changes, the API work from the other session, the `create-pr` skill changes and the refreshed prompt log. The branch has 5 commits in total, and nothing is left uncommitted. Both QA gates, API and UI, started on the PR; they're GitHub's first run of the workflow and were still queued when I checked.
+
+**PR summary:**
+- **UI:** auth, product catalog, cart and checkout tests, checked against synthetic-data oracles.
+- **Known UI bugs:** 17 tests that found real application bugs are marked `test.fixme()` with a comment, so the gates stay green.
+- **Session-ending tests:** logout and expired-session tests run last, one at a time, in their own project.
+- **API:** clients for every resource, with schema tests and functional tests (filtering, nested routes, paging and sorting, persistence).
+- **CI:** two separate QA gates, API and UI, run in parallel on every pull request.
+- **Tooling:** the Playwright test agents, a sensitive data scan in `create-pr`, updated guidelines and the prompt log.
+- **Testing:**
+  - UI suite in CI mode: 90 passed, 17 skipped as `fixme`, 0 failed.
+  - API suite: 117 passed.
+  - Lint and typecheck: clean.
+
+**Sensitive data check: clean.** The scanner found nothing in any of the 5 commits or the staged files. I also read the diffs and every user message the prompt log adds.
+- The password appears only as the `SAUCE_PASSWORD` secret reference. Other password values are empty or the fake `wrong_password`.
+- Emails and phone numbers are made up (`example.test`, `555-0100`), and the URLs are public.
+- The only person's name is Ada Lovelace, a historical figure used as the checkout buyer.
+
+The API and UI suites now handle known bugs differently: the other session pinned the API bugs with `test.fail`, while the UI bugs use `test.fixme`. Both keep the gates green. With `test.fail`, Playwright reports an unexpected pass once the API is fixed; `test.fixme` skips the test and never tells you.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 18:40 |
++------------------------------------------------------------------------------+
+
+heller check this test it is flikery -   1) [session-end] › apps/ui/tests/session-end.spec.ts:39:7 › Logout › does not restore the inventory page on Back 
+    Error: expect(page).toHaveURL(expected) failed
+    Expected: "https://www.saucedemo.com/"
+    Received: "https://www.saucedemo.com/inventory.html"
+    Timeout:  5000ms
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        14 × locator resolved to <html lang="en">…</html>
+           - unexpected value "https://www.saucedemo.com/inventory.html"
+      44 |     await page.goBack();
+      45 |
+    > 46 |     await expect(page).toHaveURL(loginPage.path);
+         |                        ^
+      47 |     await expect(loginPage.error).toHaveText(LOGIN_ERRORS.loginRequired(inventoryPage.path));
+      48 |   });
+      49 | });
+        at /home/runner/work/VNDNT/VNDNT/apps/ui/tests/session-end.spec.ts:46:24
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    apps/ui/test-results/session-end-Logout-does-no-de382--the-inventory-page-on-Back-session-end/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+    Error Context: apps/ui/test-results/session-end-Logout-does-no-de382--the-inventory-page-on-Back-session-end/error-context.md
+  1 flaky
+    [session-end] › apps/ui/tests/session-end.spec.ts:39:7 › Logout › does not restore the inventory page on Back 
+  17 skipped
+  89 passed (1.0m)
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 18:40
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+I'll send this to the healer agent. First, one quick check to give it a sharp lead: the failure looks like the browser restoring `/inventory.html` from its back-forward cache after logout, and that only happens if Playwright's Chromium leaves the cache on.
+
+  > Bash: Check whether Playwright disables Chromium back-forward cache
+  > Bash: Search playwright-core bundle for BackForwardCache
+  > Bash: Read Chromium disabled features in Playwright
+  > Bash: Print Playwright's disabled Chromium features list
+
+Playwright doesn't turn off Chromium's back-forward cache, so that explanation is possible. I'm starting the healer on this test with that lead.
+
+  > Agent: Heal flaky logout Back test
+
+\eCanary: Checked!\e
+
+The healer agent is now looking into "does not restore the inventory page on Back" in `session-end.spec.ts`. I'll tell you what it finds.
+
+**Lead I gave it:** Playwright's Chromium keeps the back-forward cache on. If Logout loads `/` as a full page, pressing Back can restore the cached `/inventory.html` without the app checking the session again. Whether the cache gets used can change from run to run, which would explain a failure that passes on retry.
+
+**Rules it has:**
+- **No shortcuts:** find the real cause. No sleeps, bigger timeouts or extra retries, and no loosening of the assertions.
+- **Test bug:** if the test code is wrong, it fixes only `session-end.spec.ts` and reruns it repeatedly to confirm it's stable.
+- **App bug:** if the app is at fault, for example Back showing a logged-out user the cached inventory page, it changes nothing and reports the evidence. That would be a real security bug, which we could then mark `fixme` like the others.
+
+The healer ruled out the back-forward cache: Logout and Back are both client-side route changes. It then called this an app bug, arguing that a slow CI machine stretched a 1–2 ms redirect to over 5 seconds. That part doesn't hold up. The failed assertion checked the URL 14 times over 5 seconds and saw `/inventory.html` every time, which looks like the redirect never happened, not like a slow one.
+
+The CI run uploaded its report, which includes the screenshot and page snapshot from the failed attempt. I'll download it to see what was actually on screen.
+
+  > Bash: Download the UI report artifact from the PR run
+  > Bash: Inspect the failed attempt's attachments
+  > Bash: Read the failed attempt's error context
+  > Bash: Reproduce Back after logout with and without waiting
+  > Bash: Wait for the login form after logout in both tests
+
+Next I'll verify the fix with the real test code. A temporary copy runs both the old and the fixed steps with the CPU slowed 20×, and the actual `session-end` tests run 10 times each.
+
+  > Bash: Compare old and fixed steps under CPU throttling
+  > Bash: Repeat the session-end tests fifteen times
+  > Bash: Repeat the two fixed logout tests 25 times
+
+I fixed the flaky test. It was a race in the test, not an app bug as the healer concluded. The change isn't committed yet.
+
+**Cause:** Logout changes the URL to `/` before the login page renders. The test's `toHaveURL('/')` passed on the URL change alone, so on a slow CI run `goBack()` could happen before the login page rendered. The app's router then saw the inventory route it was still showing and never re-checked the session, so the product list stayed. The failed CI attempt's page snapshot matches: the product list is shown and the side menu from Logout is still open.
+
+**The healer's report:** it correctly ruled out my back-forward cache idea. But it concluded the app was just slow to redirect under load, and that doesn't match a URL that stayed wrong for the full 5 seconds or the snapshot above.
+
+**Fix:** in `session-end.spec.ts`, both tests that keep going after logout now confirm the login form is showing (`loginPage.submit` visible) before they continue. Each has a one-line comment explaining why. The assertions are unchanged, with no waits or timeouts added.
+
+**Checks:**
+- **Script run 12 times per setting:** going Back as soon as the URL changes left the product list on screen 12/12 at normal speed and 12/12 with the CPU slowed 20×. Waiting for the login form first failed 0/24.
+- **Real test code, CPU slowed 20×:** the old steps failed 10/10 and the fixed steps passed 10/10.
+- **Fixed tests, 25 runs each at normal speed:** 64 passed with the setup and teardown tests, 0 failed. I used a temporary copy in the `chromium` project because Playwright won't repeat the `session-end` project, then deleted it.
+- **Lint:** clean.
+
+`README.md` and `docs/prompt-log.txt` were changed outside this session, probably by your other session, and I left them alone. Want me to commit the fix and push it to PR #3?
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 19:05 |
++------------------------------------------------------------------------------+
+
+Commit all to PR oncludeng any other sessiosn changes
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 19:05
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+I'll refresh the prompt log so this session is in it, then update PR #3 through `/create-pr`, which runs the sensitive data check.
+
+  > Bash: Refresh prompt log and show changes
+
 
 ================================================================================
 SESSION 4 of 4  |  started 2026-09-16 16:55  |  id 3dbf697c
@@ -2447,4 +2616,76 @@ Typecheck and lint pass, and no file still points at `contract/`. The prompt log
 I updated `docs/prompt-log.txt`, and nothing was erased. It holds 60 prompts across 4 sessions. The count didn't change since my last refresh because the other session added its new prompts in the meantime. This reply isn't in the log yet; the next run will add it. Nothing is committed.
 
 One conflict to know about: the other session just added a rule to CLAUDE.md that known application bugs are marked `test.fixme()`. The API bugs in `known-bugs.spec.ts` use `test.fail()`, as you asked. Both keep the QA gates green. But `test.fixme()` skips the test, while `test.fail()` still runs it and alerts you once the bug is fixed. You may want one convention for both apps.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 18:59 |
++------------------------------------------------------------------------------+
+
+Let work on readme file make sure we mention taht failing tests are ignored hiwever they are all real app bugs, list how to run the framework and also mention 2 QA gates.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 18:59
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Read README, CI workflow, scripts and git state
+  > Bash: Find known-bug markers in tests and findings in specs
+  > Bash: Find all fixme markers and remaining finding notes
+  > Read: ~/VNDNT/README.md
+  > Bash: Check branch, Node version, and test lists per project
+  > Write: ~/VNDNT/README.md
+  > Bash: Verify blank-information case names and CI settings
+
+I'm checking the README against the code. The facts are right, but one sentence claims skipped tests start failing again, which isn't true for `test.fixme()`. Fixing that now.
+
+  > Edit: ~/VNDNT/README.md
+  > Bash: Scan README for sensitive data and refresh prompt log
+
+I rewrote `README.md` to cover all three things you asked for. Nothing is committed, and the other session's existing points (synthetic oracles, CI) are still in it.
+
+**Known bugs: tests that don't fail the run** (the first section). It says plainly that these tests fail on purpose and that every one of them found a real application bug, not a flaky or broken test. It explains the two markers:
+- **UI:** `test.fixme()` skips the test. A "Real bug" comment sits above each one, and the finding is written up in `specs/`.
+- **API:** `test.fail()` still runs the test. If the API gets fixed, Playwright reports an unexpected pass and the marker has to come out.
+
+A table lists all 8 bugs and where each is pinned:
+- **UI:**
+  - the Onesie "sleeved" typo
+  - checkout fields that accept only spaces
+  - checkout pages that open by URL in any cart state
+  - Checkout enabled with an empty cart
+  - Reset App State leaving stale rows until a reload
+  - an item total that isn't rounded to cents
+- **API:** PUT on a missing id and POST with malformed JSON both return 500.
+
+**Setup and running the tests:**
+- **Setup:** Node.js 22, `npm ci`, `npx playwright install chromium` and `cp .env.example .env`. You then set `SAUCE_PASSWORD` in `.env` to the password on the SauceDemo login page; the README doesn't include the password itself.
+- **Commands table:** `npm test`, `test:api` and `test:ui` with what each runs, one spec file, the `--no-deps` shortcut for local debugging, the HTML report, and lint and typecheck.
+
+**QA gates:**
+- **The two gates:** API QA Gate and UI QA Gate run in parallel on every pull request, and can also be started by hand from the Actions tab. The UI gate needs the `SAUCE_PASSWORD` repository secret.
+- **CI behavior:** both gates upload their reports, CI gets 2 retries, and a red gate means something new broke, because the known bugs are pinned.
+
+I also added:
+- **How the tests are organized:** a short folder overview, including `schema/` and `functional/` for the API.
+- **Expected data:** synthetic oracles for the UI; types and structure with no hardcoded data for the API.
+- **Links:** to `CLAUDE.md`, the guidelines and the prompt log.
+
+I checked each command and bug against the code and `specs/`. The run commands work: `--list` finds 107 UI and 117 API tests. I didn't run the UI suite, because a run could log out the saved sessions the other session's tests use. The sensitive data scan of the README is clean, and the prompt log is refreshed with nothing removed.
+
+
++------------------------------------------------------------------------------+
+| USER                                                        2026-09-16 19:01 |
++------------------------------------------------------------------------------+
+
+/prompt-log
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  AI                                                          2026-09-16 19:02
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  > Bash: Regenerate prompt log and confirm nothing was removed
+
+I updated `docs/prompt-log.txt`, and nothing was erased: apart from the "Last generated" timestamp, the run only added lines. The log now holds 64 prompts across 4 sessions, including this `/prompt-log` run. This reply isn't in the log yet; the next run will add it. Nothing is committed.
 

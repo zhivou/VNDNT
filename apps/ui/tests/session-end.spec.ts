@@ -29,6 +29,8 @@ test.describe('Logout', () => {
     await inventoryPage.goto();
     await inventoryPage.header.logout();
     await expect(page).toHaveURL(loginPage.path);
+    // Logout changes the URL before the login page renders. Acting in between leaves the app on the product list.
+    await expect(loginPage.submit).toBeVisible();
 
     await inventoryPage.goto();
 
@@ -40,6 +42,8 @@ test.describe('Logout', () => {
     await inventoryPage.goto();
     await inventoryPage.header.logout();
     await expect(page).toHaveURL(loginPage.path);
+    // Logout changes the URL before the login page renders. Acting in between leaves the app on the product list.
+    await expect(loginPage.submit).toBeVisible();
 
     await page.goBack();
 

@@ -3,7 +3,7 @@ import { expect, test } from '@api/fixtures/clients.fixture';
 
 // These tests check types and structure against our own schemas, never the dataset's content.
 
-test.describe('schema', () => {
+test.describe('schema', { tag: '@p1' }, () => {
   test('list returns users matching the schema', async ({ usersApi }) => {
     const response = await usersApi.list();
 

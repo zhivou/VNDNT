@@ -9,7 +9,7 @@ import { expect, test } from '@ui/fixtures/pages.fixture';
 // marked test.fixme() until the application is fixed.
 
 test.describe('Adding and removing', () => {
-  test('adds a product from the list', async ({ inventoryPage }) => {
+  test('adds a product from the list', { tag: '@p1' }, async ({ inventoryPage }) => {
     await inventoryPage.goto();
     const backpack = inventoryPage.product(CATALOG.backpack.name);
 
@@ -19,7 +19,7 @@ test.describe('Adding and removing', () => {
     await expect(inventoryPage.header.cartBadge).toHaveText('1');
   });
 
-  test('removes a product from the list', async ({ fillCart, inventoryPage }) => {
+  test('removes a product from the list', { tag: '@p2' }, async ({ fillCart, inventoryPage }) => {
     await fillCart([CATALOG.bikeLight]);
     await inventoryPage.goto();
     const bikeLight = inventoryPage.product(CATALOG.bikeLight.name);
@@ -30,7 +30,7 @@ test.describe('Adding and removing', () => {
     await expect(inventoryPage.header.cartBadge).toBeHidden();
   });
 
-  test('adds a product from its details page', async ({ inventoryItemPage }) => {
+  test('adds a product from its details page', { tag: '@p2' }, async ({ inventoryItemPage }) => {
     await inventoryItemPage.goto(CATALOG.boltTShirt.id);
 
     await inventoryItemPage.product.addToCartButton.click();
@@ -39,7 +39,7 @@ test.describe('Adding and removing', () => {
     await expect(inventoryItemPage.header.cartBadge).toHaveText('1');
   });
 
-  test('removes a product on its details page', async ({ fillCart, inventoryItemPage }) => {
+  test('removes a product on its details page', { tag: '@p2' }, async ({ fillCart, inventoryItemPage }) => {
     await fillCart([CATALOG.boltTShirt]);
     await inventoryItemPage.goto(CATALOG.boltTShirt.id);
 
@@ -49,7 +49,7 @@ test.describe('Adding and removing', () => {
     await expect(inventoryItemPage.header.cartBadge).toBeHidden();
   });
 
-  test('shows a product added on the list as added on its details page', async ({
+  test('shows a product added on the list as added on its details page', { tag: '@p2' }, async ({
     inventoryPage,
     inventoryItemPage,
   }) => {
@@ -63,7 +63,7 @@ test.describe('Adding and removing', () => {
     await expect(inventoryItemPage.header.cartBadge).toHaveText('1');
   });
 
-  test('shows a product removed on its details page as not added on the list', async ({
+  test('shows a product removed on its details page as not added on the list', { tag: '@p2' }, async ({
     fillCart,
     inventoryPage,
     inventoryItemPage,
@@ -78,7 +78,7 @@ test.describe('Adding and removing', () => {
     await expect(inventoryPage.header.cartBadge).toBeHidden();
   });
 
-  test('counts every product added to the cart', async ({ inventoryPage }) => {
+  test('counts every product added to the cart', { tag: '@p2' }, async ({ inventoryPage }) => {
     await inventoryPage.goto();
 
     for (const [index, product] of PRODUCTS.entries()) {
@@ -95,7 +95,7 @@ test.describe('Adding and removing', () => {
     }
   });
 
-  test('hides the badge only once the last product is removed', async ({ fillCart, inventoryPage }) => {
+  test('hides the badge only once the last product is removed', { tag: '@p2' }, async ({ fillCart, inventoryPage }) => {
     await fillCart([CATALOG.bikeLight, CATALOG.onesie]);
     await inventoryPage.goto();
     await expect(inventoryPage.header.cartBadge).toHaveText('2');
@@ -107,7 +107,7 @@ test.describe('Adding and removing', () => {
     await expect(inventoryPage.header.cartBadge).toBeHidden();
   });
 
-  test('keeps the cart after a reload', async ({ inventoryPage, page }) => {
+  test('keeps the cart after a reload', { tag: '@p2' }, async ({ inventoryPage, page }) => {
     await inventoryPage.goto();
     const fleeceJacket = inventoryPage.product(CATALOG.fleeceJacket.name);
     await fleeceJacket.addToCartButton.click();
@@ -121,7 +121,7 @@ test.describe('Adding and removing', () => {
 });
 
 test.describe('Cart page', () => {
-  test('opens from the cart link in the header', async ({ inventoryPage, cartPage, page }) => {
+  test('opens from the cart link in the header', { tag: '@p1' }, async ({ inventoryPage, cartPage, page }) => {
     await inventoryPage.goto();
 
     await inventoryPage.header.cartLink.click();
@@ -132,7 +132,10 @@ test.describe('Cart page', () => {
 
   // Real bug: Sauce Labs Onesie's description reads "sleeved" instead of "sleeves". It needs a fix in the application,
   // not in this test. Remove test.fixme() once it's fixed.
-  test.fixme('shows every product in the cart with its intended details', async ({ fillCart, cartPage }) => {
+  test.fixme('shows every product in the cart with its intended details', { tag: '@p2' }, async ({
+    fillCart,
+    cartPage,
+  }) => {
     await fillCart(PRODUCTS);
     await cartPage.goto();
 
@@ -154,7 +157,10 @@ test.describe('Cart page', () => {
     }
   });
 
-  test('lists only the products added, in the order they were added', async ({ inventoryPage, cartPage }) => {
+  test('lists only the products added, in the order they were added', { tag: '@p2' }, async ({
+    inventoryPage,
+    cartPage,
+  }) => {
     const added = [CATALOG.onesie, CATALOG.backpack, CATALOG.fleeceJacket];
     await inventoryPage.goto();
     for (const product of added) {
@@ -166,7 +172,7 @@ test.describe('Cart page', () => {
     await expect(cartPage.itemNames).toHaveText(added.map(({ name }) => name));
   });
 
-  test('shows no products while the cart is empty', async ({ cartPage }) => {
+  test('shows no products while the cart is empty', { tag: '@p2' }, async ({ cartPage }) => {
     await cartPage.goto();
 
     await expect(cartPage.title).toHaveText('Your Cart');
@@ -175,7 +181,7 @@ test.describe('Cart page', () => {
   });
 });
 
-test.describe('Removing from the cart page', () => {
+test.describe('Removing from the cart page', { tag: '@p2' }, () => {
   test('removes a product and keeps the rest in order', async ({ fillCart, cartPage }) => {
     await fillCart([CATALOG.backpack, CATALOG.bikeLight, CATALOG.onesie]);
     await cartPage.goto();
@@ -204,7 +210,12 @@ test.describe('Removing from the cart page', () => {
 });
 
 test.describe('Navigation', () => {
-  test("opens a product's details from its name", async ({ fillCart, cartPage, inventoryItemPage, page }) => {
+  test("opens a product's details from its name", { tag: '@p3' }, async ({
+    fillCart,
+    cartPage,
+    inventoryItemPage,
+    page,
+  }) => {
     await fillCart([CATALOG.backpack]);
     await cartPage.goto();
 
@@ -214,7 +225,11 @@ test.describe('Navigation', () => {
     await expect(inventoryItemPage.product.name).toHaveText(CATALOG.backpack.name);
   });
 
-  test('returns to the product list with Continue Shopping', async ({ cartPage, inventoryPage, page }) => {
+  test('returns to the product list with Continue Shopping', { tag: '@p3' }, async ({
+    cartPage,
+    inventoryPage,
+    page,
+  }) => {
     await cartPage.goto();
 
     await cartPage.continueShoppingButton.click();
@@ -223,7 +238,7 @@ test.describe('Navigation', () => {
     await expect(inventoryPage.items).toHaveCount(PRODUCTS.length);
   });
 
-  test('goes to checkout with Checkout', async ({ fillCart, cartPage, checkoutStepOnePage, page }) => {
+  test('goes to checkout with Checkout', { tag: '@p1' }, async ({ fillCart, cartPage, checkoutStepOnePage, page }) => {
     await fillCart([CATALOG.backpack]);
     await cartPage.goto();
 
@@ -235,7 +250,7 @@ test.describe('Navigation', () => {
 
   // Real bug: Checkout is enabled with an empty cart. It needs a fix in the application, not in this test. Remove
   // test.fixme() once it's fixed.
-  test.fixme('disables Checkout while the cart is empty', async ({ cartPage }) => {
+  test.fixme('disables Checkout while the cart is empty', { tag: '@p2' }, async ({ cartPage }) => {
     await cartPage.goto();
 
     await expect(cartPage.title).toHaveText('Your Cart');
@@ -245,7 +260,7 @@ test.describe('Navigation', () => {
 
 // Real bug: Reset App State empties the cart, but the Remove buttons and cart rows stay until the page reloads. It
 // needs a fix in the application, not in these tests. Remove test.describe.fixme() once it's fixed.
-test.describe.fixme('Reset App State', () => {
+test.describe.fixme('Reset App State', { tag: '@p3' }, () => {
   test('empties the cart on the product list', async ({ fillCart, inventoryPage }) => {
     await fillCart([CATALOG.backpack, CATALOG.bikeLight]);
     await inventoryPage.goto();
@@ -269,7 +284,7 @@ test.describe.fixme('Reset App State', () => {
   });
 });
 
-test.describe('Totals', () => {
+test.describe('Totals', { tag: '@p1' }, () => {
   // The cart page shows no totals. The checkout overview is the first page that adds the cart up.
   for (const { description, products } of CARTS) {
     test(`totals ${description} at checkout`, async ({

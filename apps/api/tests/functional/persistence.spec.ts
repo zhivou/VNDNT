@@ -19,7 +19,7 @@ const RESOURCES = [
 ] as const;
 
 for (const { resource, buildNew, buildChanges } of RESOURCES) {
-  test.describe(resource, () => {
+  test.describe(resource, { tag: '@p2' }, () => {
     test.use({ resource });
 
     test('create is not persisted: the new id returns 404', async ({ api }) => {

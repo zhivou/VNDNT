@@ -13,7 +13,7 @@ import { expect, test } from '@ui/fixtures/pages.fixture';
 // when the site shows something else, the test fails and the difference is a finding. A test that found a real bug is
 // marked test.fixme() until the application is fixed.
 
-test.describe('Product list', () => {
+test.describe('Product list', { tag: '@p2' }, () => {
   // Real bug: Sauce Labs Onesie's description reads "sleeved" instead of "sleeves". It needs a fix in the application,
   // not in this test. Remove test.fixme() once it's fixed.
   test.fixme('shows every product with its intended details', async ({ inventoryPage }) => {
@@ -39,7 +39,7 @@ test.describe('Product list', () => {
   });
 });
 
-test.describe('Sorting', () => {
+test.describe('Sorting', { tag: '@p3' }, () => {
   test('offers every sort option with name from A to Z selected', async ({ inventoryPage }) => {
     await inventoryPage.goto();
 
@@ -62,7 +62,7 @@ test.describe('Sorting', () => {
 
 test.describe('Product details', () => {
   for (const product of PRODUCTS) {
-    test(`shows the details of ${product.name}`, async ({ inventoryPage, inventoryItemPage, page }) => {
+    test(`shows the details of ${product.name}`, { tag: '@p2' }, async ({ inventoryPage, inventoryItemPage, page }) => {
       // Real bug: Sauce Labs Onesie's description reads "sleeved" instead of "sleeves". It needs a fix in the
       // application, not in this test. Remove test.fixme() once it's fixed.
       test.fixme(product === CATALOG.onesie, 'Real bug: the Sauce Labs Onesie description has a typo');
@@ -80,7 +80,7 @@ test.describe('Product details', () => {
       await expect.soft(details.addToCartButton).toBeVisible();
     });
 
-    test(`opens ${product.name} from its image`, async ({ inventoryPage, inventoryItemPage, page }) => {
+    test(`opens ${product.name} from its image`, { tag: '@p3' }, async ({ inventoryPage, inventoryItemPage, page }) => {
       await inventoryPage.goto();
 
       await inventoryPage.product(product.name).imageLink.click();
@@ -90,7 +90,11 @@ test.describe('Product details', () => {
     });
   }
 
-  test('returns to the product list with Back to products', async ({ inventoryItemPage, inventoryPage, page }) => {
+  test('returns to the product list with Back to products', { tag: '@p3' }, async ({
+    inventoryItemPage,
+    inventoryPage,
+    page,
+  }) => {
     await inventoryItemPage.goto(CATALOG.onesie.id);
 
     await inventoryItemPage.backButton.click();

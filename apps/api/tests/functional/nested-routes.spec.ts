@@ -34,7 +34,7 @@ const NESTED_ROUTES = [
 ] as const;
 
 for (const { route, parent, child, key, listNested } of NESTED_ROUTES) {
-  test.describe(route, () => {
+  test.describe(route, { tag: '@p3' }, () => {
     test.use({ resource: parent });
 
     test(`returns the same ${child} as filtering by ${key}`, async ({ clients, existingRecord }) => {

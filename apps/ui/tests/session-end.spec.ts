@@ -8,7 +8,7 @@ import { storageStatePath } from '@ui/utils/auth';
 // setup project saved, one per user, and there are no more users to create. Ending one of them mid-run could log out
 // every other test using that user, so these run in the session-end project: after chromium, one test at a time.
 
-test.describe('Logout', () => {
+test.describe('Logout', { tag: '@p1' }, () => {
   // Every user who can log in, starting from the session the auth setup project saved for them
   for (const user of SESSION_USERS) {
     test.describe(`as ${user}`, () => {
@@ -52,7 +52,7 @@ test.describe('Logout', () => {
   });
 });
 
-test.describe('Expired session', () => {
+test.describe('Expired session', { tag: '@p1' }, () => {
   test('sends the user to the login page on the next page load', async ({ inventoryPage, loginPage, page }) => {
     await inventoryPage.goto();
     // SauceDemo's session cookie expires after 10 minutes. Clearing cookies has the same effect right away.

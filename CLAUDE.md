@@ -87,7 +87,12 @@ The repo holds two self-contained Playwright suites, one per service, each in it
 - **Apps never import from each other.** Nothing in `apps/ui` imports `@api/*`, and nothing in `apps/api` imports `@ui/*`. If both apps ever need the same helper, add a root `shared/` folder at that point.
 - Import within an app through its alias (`@ui/...`, `@api/...`). App config files use relative imports.
 - Specs import `test` and `expect` from their app's fixture file, not from `@playwright/test`.
-- Don't tag tests (`{ tag: '@smoke' }`). To run part of a suite, pick an app, a project or a spec file.
+- **Tags are for priority only.** Every test gets exactly one of `@p1`, `@p2` or `@p3`, taken from the risk table in `README.md`. Never add other tags (`@smoke`, `@regression`, a feature name).
+  - Put the tag on the `test.describe` when all its tests share a priority: `test.describe('Totals', { tag: '@p1' }, () => {})`. Otherwise tag each test: `test('...', { tag: '@p2' }, async () => {})`. In a loop, the tag is written once.
+  - A test inherits its describe's tags, so never tag a test inside a tagged describe.
+  - A new test gets its priority from the table's matching risk. A feature the table doesn't cover gets a new row first.
+  - The setup projects and `seed.spec.ts` stay untagged.
+  - To run part of a suite, pick an app, a project, a spec file or a priority.
 - Read environment variables only through the app's `utils/env.ts`, and add every new variable to `.env.example`.
 - Layers within an app. Imports only go down this table:
 
@@ -127,6 +132,7 @@ UI tests treat SauceDemo's data as synthetic: they're written as if the test aut
 - First run: `npm ci`, `npx playwright install chromium`, `cp .env.example .env`
 - `npm run test:ui` or `npm run test:api` runs one app. Its setup projects run first.
 - `npm test` runs the API app, then the UI app.
+- `npm run test:p1` runs only the P1 tests, and `npm run test:p2` runs P1 and P2. Each runs the API app, then the UI app, with the setup projects first. `--grep` doesn't filter `session-end`, because it's a teardown, so all of it runs. Its tests are all P1.
 - `npm run lint` and `npm run typecheck` must pass before a PR.
 - `npx playwright test -c apps/ui --project=chromium --no-deps` skips the setup projects and `session-end` and reuses the saved sessions, for local debugging. It only works within 10 minutes of the last full run.
 - `npx playwright show-report apps/ui/playwright-report` opens an app's last report.
@@ -138,7 +144,7 @@ UI tests treat SauceDemo's data as synthetic: they're written as if the test aut
 - **API QA Gate** runs `npm run test:api`.
 - **UI QA Gate** installs Chromium and runs `npm run test:ui`. It reads the SauceDemo password from the `SAUCE_PASSWORD` repository secret.
 
-Both set their base URLs in the workflow and upload the HTML report as an artifact, even when tests fail. On CI, `baseConfig` turns on 2 retries, `forbidOnly` and the JUnit reporter. A gate fails on any failing test. Known application bugs are marked `test.fixme()`, so a red gate means something new broke.
+Both set their base URLs in the workflow and upload the HTML report as an artifact, even when tests fail. On CI, `baseConfig` turns on 2 retries, `forbidOnly` and the JUnit reporter. A gate fails on any failing test. Known application bugs are marked `test.fixme()`, so a red gate means something new broke. The gates run every test, whatever its priority.
 
 ### Playwright test agents
 
@@ -149,7 +155,7 @@ UI tests are written with the official [Playwright test agents](https://playwrig
 - `playwright-test-healer` debugs failing tests and fixes them. A test that fails because the site differs from an oracle is a finding, not a broken test: the healer fixes only the test code (locators, steps) and leaves the oracle and the assertion alone. A confirmed bug gets `test.fixme()` with a real-bug comment (see Expected data above).
 - The agents call the `playwright-test` MCP server from `.mcp.json`, which runs `npx playwright run-test-mcp-server -c apps/ui`. Without `-c apps/ui` it loads the root config and finds no tests.
 - The planner and generator start from `apps/ui/tests/seed.spec.ts`. It runs in `chromium`, so the setup projects run first and the page opens logged in as `standard_user` on the inventory page.
-- A generated spec is a draft. Before a PR, bring it in line with the rules above (fixture imports, locators and actions in page objects) and validate it like any new test.
+- A generated spec is a draft. Before a PR, bring it in line with the rules above (fixture imports, locators and actions in page objects, a priority tag) and validate it like any new test.
 - After a Playwright upgrade, regenerate the agents with `npx playwright init-agents --loop=claude -c apps/ui --project=chromium`. It overwrites the agent files and `.mcp.json`, so add `"-c", "apps/ui"` back to the server args. It keeps the existing seed and `specs/`.
 
 ## Branches and pull requests

@@ -7,6 +7,8 @@
     "test": "npm run test:api && npm run test:ui",
     "test:ui": "playwright test -c apps/ui",
     "test:api": "playwright test -c apps/api",
+    "test:p1": "npm run test:api -- --grep @p1 && npm run test:ui -- --grep @p1",
+    "test:p2": "npm run test:api -- --grep \"@p1|@p2\" && npm run test:ui -- --grep \"@p1|@p2\"",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
